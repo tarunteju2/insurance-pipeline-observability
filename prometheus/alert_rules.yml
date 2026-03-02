@@ -1,0 +1,121 @@
+groups:
+  - name: insurance_claims_pipeline
+    interval: 30s
+    rules:
+      # ===================== CRITICAL ALERTS =====================
+      
+      - alert: PipelineComponentDown
+        expr: insurance_pipeline_component_status{component!="prometheus_metrics"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: "{{ $labels.component }}"
+        annotations:
+          summary: "Pipeline component {{ $labels.component }} is DOWN"
+          description: "Critical infrastructure component {{ $labels.component }} has been down for 2+ minutes. Immediate action required."
+          runbook_url: "https://wiki.company.com/runbook/component-down"
+      
+      - alert: KafkaBrokerUnreachable
+        expr: increase(insurance_pipeline_errors_total{stage="kafka"}[5m]) > 10
+        labels:
+          severity: critical
+          stage: kafka
+        annotations:
+          summary: "Kafka broker experiencing connection errors"
+          description: "Kafka broker has experienced {{ $value }} errors in the last 5 minutes. Check broker connectivity."
+      
+      - alert: DatabaseConnectionFailure
+        expr: insurance_pipeline_component_status{component="postgres_db"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: postgres
+        annotations:
+          summary: "PostgreSQL database connection failed"
+          description: "Cannot connect to PostgreSQL. Check database service and network connectivity."
+
+      # ===================== HIGH PRIORITY ALERTS =====================
+      
+      - alert: HighErrorRate
+        expr: (rate(insurance_pipeline_errors_total[5m]) / rate(insurance_claims_received_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pipeline error rate exceeds 10%"
+          description: "Error rate is {{ $value | humanizePercentage }}. Investigate processing failures."
+      
+      - alert: PipelineThroughputDropped
+        expr: rate(insurance_claims_processed_total[5m]) < 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pipeline throughput dropped below 1 claim/second"
+          description: "Current throughput is {{ $value }} claims/sec. Pipeline may be slow or stalled."
+      
+      - alert: HighFraudScoreDetected
+        expr: increase(insurance_fraud_flagged_total[15m]) > 50
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusually high fraud detection rate"
+          description: "{{ $value }} claims flagged as fraud in last 15 minutes. Review fraud rules."
+      
+      - alert: ProcessingLatencyHigh
+        expr: histogram_quantile(0.95, rate(insurance_claims_processing_duration_seconds_bucket[5m])) > 5
+        labels:
+          severity: warning
+        annotations:
+          summary: "P95 processing latency exceeds 5 seconds"
+          description: "P95 latency is {{ $value }}s. Performance degradation detected."
+
+      # ===================== LINEAGE & DATA QUALITY =====================
+      
+      - alert: LineageCoverageLow
+        expr: insurance_lineage_coverage_percent < 80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Data lineage coverage below 80%"
+          description: "Only {{ $value }}% of claims are being tracked for lineage. Check tracing configuration."
+      
+      - alert: InvalidClaimsInDLQ
+        expr: increase(insurance_claims_dlq_total[1h]) > 100
+        labels:
+          severity: warning
+        annotations:
+          summary: "High volume of invalid claims in DLQ"
+          description: "{{ $value }} claims sent to Dead Letter Queue in last hour. Review validation rules."
+
+      # ===================== RESOURCE & INFRA ALERTS =====================
+      
+      - alert: MinIOStorageAvailable
+        expr: (minio_disk_free_bytes / minio_disk_total_bytes) < 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MinIO storage usage exceeds 85%"
+          description: "Only {{ $value | humanizePercentage }}% of storage remaining. Plan for cleanup/expansion."
+      
+      - alert: ZookeeperDown
+        expr: up{job="zookeeper"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Zookeeper instance is down"
+          description: "Zookeeper health check is failing. This may impact Kafka."
+
+      # ===================== QUEUE DEPTH MONITORING =====================
+      
+      - alert: QueueDepthHigh
+        expr: kafka_queue_depth > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka queue depth exceeds 10,000 messages"
+          description: "{{ $labels.topic }} has {{ $value }} pending messages. Consumer may be lagging."

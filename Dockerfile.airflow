@@ -1,0 +1,29 @@
+FROM apache/airflow:2.8.1-python3.11
+
+USER root
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    && apt-get clean
+
+USER airflow
+
+# Copy requirements
+COPY requirements.txt requirements_airflow.txt /tmp/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    -r /tmp/requirements.txt \
+    -r /tmp/requirements_airflow.txt
+
+# Copy project code
+COPY --chown=airflow:airflow src /opt/airflow/src
+COPY --chown=airflow:airflow dags /opt/airflow/dags
+COPY --chown=airflow:airflow scripts /opt/airflow/scripts
+
+# Set PYTHONPATH
+ENV PYTHONPATH=/opt/airflow
+
+WORKDIR /opt/airflow

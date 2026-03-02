@@ -1,0 +1,142 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "title": "Claims Received (by type)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "expr": "rate(insurance_claims_received_total[1m])",
+          "legendFormat": "{{claim_type}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "ops", "custom": { "drawStyle": "line", "fillOpacity": 20 } }
+      }
+    },
+    {
+      "title": "Processing Latency by Stage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(insurance_claims_processing_duration_seconds_bucket[5m]))",
+          "legendFormat": "p95 {{stage}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "custom": { "drawStyle": "line" } }
+      }
+    },
+    {
+      "title": "Pipeline Component Health",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "insurance_pipeline_component_status",
+          "legendFormat": "{{component}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN" }, "0.5": { "text": "DEGRADED" }, "1": { "text": "HEALTHY" } } }
+          ]
+        }
+      }
+    },
+    {
+      "title": "Fraud Score Distribution",
+      "type": "histogram",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [
+        {
+          "expr": "rate(insurance_fraud_score_distribution_bucket[5m])",
+          "legendFormat": "{{claim_type}} {{le}}"
+        }
+      ]
+    },
+    {
+      "title": "Claims Processed by Stage",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "targets": [
+        {
+          "expr": "insurance_claims_processed_total",
+          "legendFormat": "{{stage}} - {{status}}"
+        }
+      ]
+    },
+    {
+      "title": "Pipeline Throughput",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 20 },
+      "targets": [
+        { "expr": "insurance_pipeline_throughput_per_second", "legendFormat": "{{stage}}" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [ { "color": "red", "value": 0 }, { "color": "yellow", "value": 5 }, { "color": "green", "value": 20 } ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Pipeline Errors",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 20 },
+      "targets": [
+        { "expr": "rate(insurance_pipeline_errors_total[5m])", "legendFormat": "{{stage}} - {{error_type}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops", "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Lineage Coverage",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 20 },
+      "targets": [
+        { "expr": "insurance_lineage_coverage_percent" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [ { "color": "red", "value": 0 }, { "color": "yellow", "value": 70 }, { "color": "green", "value": 90 } ]
+          }
+        }
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["insurance", "claims", "pipeline", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Insurance Claims Pipeline Observability",
+  "uid": "insurance-claims-pipeline",
+  "version": 1
+}
