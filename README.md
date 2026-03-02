@@ -9,7 +9,7 @@ A comprehensive real-time data pipeline for processing insurance claims with com
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Architecture](#architecture)
@@ -25,7 +25,7 @@ A comprehensive real-time data pipeline for processing insurance claims with com
 
 ---
 
-## 🎯 Overview
+## Overview
 
 Insurance Claims Pipeline is an end-to-end data processing system that:
 - **Ingests** insurance claims in real-time via Kafka
@@ -40,51 +40,51 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 
 ---
 
-## 🏗️ Architecture
+## ️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      INSURANCE CLAIMS PIPELINE                    │
+│ INSURANCE CLAIMS PIPELINE │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ┌──────────┐      ┌──────────┐      ┌──────────┐              │
-│  │  Claims  │       │ Kafka    │      │  Stream  │              │
-│  │ Producer │──────▶│ Broker   │─────▶│Processor │              │
-│  └──────────┘      └──────────┘      └──────────┘              │
-│                          │                   │                   │
-│                          │      ┌────────────┴──────────┐        │
-│                          │      ▼                       ▼        │
-│                    ┌──────────────┐            ┌──────────────┐ │
-│                    │  Validator   │            │Fraud Detector│ │
-│                    └──────────────┘            └──────────────┘ │
-│                          │                       │               │
-│                          └───────────┬───────────┘               │
-│                                      ▼                           │
-│                           ┌──────────────────┐                   │
-│                           │Claims Enricher   │                   │
-│                           └──────────────────┘                   │
-│                                      │                           │
-│                    ┌─────────────────┼──────────────────┐        │
-│                    ▼                 ▼                  ▼        │
-│            ┌────────────┐  ┌─────────────┐  ┌──────────────┐   │
-│            │PostgreSQL  │  │MinIO S3     │  │Lineage Tracker   │
-│            │Database    │  │Data Lake    │  │& Metadata    │   │
-│            └────────────┘  └─────────────┘  └──────────────┘   │
-│                    │                                             │
+│ │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│ │ Claims │ │ Kafka │ │ Stream │ │
+│ │ Producer │──────▶│ Broker │─────▶│Processor │ │
+│ └──────────┘ └──────────┘ └──────────┘ │
+│ │ │ │
+│ │ ┌────────────┴──────────┐ │
+│ │ ▼ ▼ │
+│ ┌──────────────┐ ┌──────────────┐ │
+│ │ Validator │ │Fraud Detector│ │
+│ └──────────────┘ └──────────────┘ │
+│ │ │ │
+│ └───────────┬───────────┘ │
+│ ▼ │
+│ ┌──────────────────┐ │
+│ │Claims Enricher │ │
+│ └──────────────────┘ │
+│ │ │
+│ ┌─────────────────┼──────────────────┐ │
+│ ▼ ▼ ▼ │
+│ ┌────────────┐ ┌─────────────┐ ┌──────────────┐ │
+│ │PostgreSQL │ │MinIO S3 │ │Lineage Tracker │
+│ │Database │ │Data Lake │ │& Metadata │ │
+│ └────────────┘ └─────────────┘ └──────────────┘ │
+│ │ │
 ├────────────────────┼─────────────────────────────────────────────┤
-│                    │        OBSERVABILITY LAYER                  │
-│                    ▼                                             │
-│          ┌──────────────────┐      ┌──────────────┐              │
-│          │  Prometheus      │      │   Jaeger     │              │
-│          │  Metrics         │      │   Tracing    │              │
-│          └────────┬─────────┘      └──────────────┘              │
-│                   │                                              │
-│                   ▼                                              │
-│          ┌──────────────────┐                                    │
-│          │     Grafana      │                                    │
-│          │   Dashboard      │                                    │
-│          └──────────────────┘                                    │
-│                                                                   │
+│ │ OBSERVABILITY LAYER │
+│ ▼ │
+│ ┌──────────────────┐ ┌──────────────┐ │
+│ │ Prometheus │ │ Jaeger │ │
+│ │ Metrics │ │ Tracing │ │
+│ └────────┬─────────┘ └──────────────┘ │
+│ │ │
+│ ▼ │
+│ ┌──────────────────┐ │
+│ │ Grafana │ │
+│ │ Dashboard │ │
+│ └──────────────────┘ │
+│ │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -102,31 +102,31 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 
 ---
 
-## ✨ Features
+## Features
 
-### 🔄 Real-Time Processing
+### Real-Time Processing
 - Claims processed within milliseconds of receipt
 - Sub-second latency for validation and enrichment
 - Automatic retry and error handling
 
-### 🔍 Complete Lineage Tracking
+### Complete Lineage Tracking
 - Track every claim through each processing stage
 - View which systems touched which data
 - Audit trail for compliance and debugging
 
-### 📊 Comprehensive Monitoring
+### Comprehensive Monitoring
 - 34+ Prometheus metrics tracked in real-time
 - 12 alert rules for critical issues
 - Custom Grafana dashboard with 8 visualization panels
 - Distributed tracing with Jaeger
 
-### 🔒 Data Protection
+### Data Protection
 - Automated daily PostgreSQL backups to MinIO
 - 30-day backup retention with auto-cleanup
 - Disaster recovery procedures documented and tested
 - RPO: 15 minutes | RTO: 1 hour
 
-### 🚀 Enterprise Ready
+### Enterprise Ready
 - Docker Compose for easy deployment
 - Health checks for all components
 - Horizontal scaling ready
@@ -134,7 +134,7 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Docker & Docker Compose
@@ -145,39 +145,39 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/tarunteju2/insurance-pipeline-observability.git
-   cd insurance-pipeline-observability
-   ```
+ ```bash
+ git clone https://github.com/tarunteju2/insurance-pipeline-observability.git
+ cd insurance-pipeline-observability
+ ```
 
 2. **Set up environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On macOS/Linux
-   # or
-   .venv\Scripts\activate  # On Windows
-   
-   pip install -r requirements.txt
-   pip install -r requirements_airflow.txt
-   ```
+ ```bash
+ python -m venv .venv
+ source .venv/bin/activate # On macOS/Linux
+ # or
+ .venv\Scripts\activate # On Windows
+ 
+ pip install -r requirements.txt
+ pip install -r requirements_airflow.txt
+ ```
 
 3. **Start the stack**
-   ```bash
-   docker compose up -d
-   sleep 30  # Wait for all services to be ready
-   docker compose ps  # Verify all containers are running
-   ```
+ ```bash
+ docker compose up -d
+ sleep 30 # Wait for all services to be ready
+ docker compose ps # Verify all containers are running
+ ```
 
 4. **Initialize the database**
-   ```bash
-   docker compose exec postgres psql -U pipeline_admin -d insurance_lineage \
-     -f /scripts/init_db.sql
-   ```
+ ```bash
+ docker compose exec postgres psql -U pipeline_admin -d insurance_lineage \
+ -f /scripts/init_db.sql
+ ```
 
 5. **Run the pipeline**
-   ```bash
-   python scripts/run_pipeline.py
-   ```
+ ```bash
+ python scripts/run_pipeline.py
+ ```
 
 ### Access the Services
 
@@ -192,66 +192,66 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 insurance-pipeline-observability/
-├── README.md                          # This file
-├── docker-compose.yml                 # Docker Compose configuration
-├── requirements.txt                   # Python dependencies
-├── requirements_airflow.txt           # Airflow-specific dependencies
+├── README.md # This file
+├── docker-compose.yml # Docker Compose configuration
+├── requirements.txt # Python dependencies
+├── requirements_airflow.txt # Airflow-specific dependencies
 │
-├── dags/                              # Airflow DAGs
-│   ├── insurance_claims_pipeline.py   # Main processing DAG (every 15 min)
-│   └── backup_disaster_recovery.py    # Backup automation (daily at 2 AM)
+├── dags/ # Airflow DAGs
+│ ├── insurance_claims_pipeline.py # Main processing DAG (every 15 min)
+│ └── backup_disaster_recovery.py # Backup automation (daily at 2 AM)
 │
-├── src/                               # Main application code
-│   ├── config.py                      # Configuration management
-│   ├── api/
-│   │   └── main.py                    # FastAPI observability endpoints
-│   ├── processors/
-│   │   ├── claims_validator.py        # Claim validation logic
-│   │   ├── fraud_detector.py          # Fraud scoring
-│   │   ├── claims_enricher.py         # Data enrichment
-│   │   └── stream_processor.py        # Kafka stream processing
-│   ├── producers/
-│   │   └── claims_producer.py         # Claim generation for testing
-│   ├── models/
-│   │   └── claims.py                  # SQLAlchemy models
-│   ├── lineage/
-│   │   ├── tracker.py                 # Data lineage tracking
-│   │   └── models.py                  # Lineage database models
-│   └── observability/
-│       ├── health.py                  # Component health monitoring
-│       ├── metrics.py                 # Prometheus metrics
-│       └── tracing.py                 # Jaeger distributed tracing
+├── src/ # Main application code
+│ ├── config.py # Configuration management
+│ ├── api/
+│ │ └── main.py # FastAPI observability endpoints
+│ ├── processors/
+│ │ ├── claims_validator.py # Claim validation logic
+│ │ ├── fraud_detector.py # Fraud scoring
+│ │ ├── claims_enricher.py # Data enrichment
+│ │ └── stream_processor.py # Kafka stream processing
+│ ├── producers/
+│ │ └── claims_producer.py # Claim generation for testing
+│ ├── models/
+│ │ └── claims.py # SQLAlchemy models
+│ ├── lineage/
+│ │ ├── tracker.py # Data lineage tracking
+│ │ └── models.py # Lineage database models
+│ └── observability/
+│ ├── health.py # Component health monitoring
+│ ├── metrics.py # Prometheus metrics
+│ └── tracing.py # Jaeger distributed tracing
 │
 ├── scripts/
-│   ├── run_pipeline.py                # Pipeline execution script
-│   ├── backup_postgres.sh             # Manual PostgreSQL backup
-│   └── init_db.sql                    # Database initialization
+│ ├── run_pipeline.py # Pipeline execution script
+│ ├── backup_postgres.sh # Manual PostgreSQL backup
+│ └── init_db.sql # Database initialization
 │
 ├── prometheus/
-│   ├── prometheus.yml                 # Prometheus configuration
-│   └── alert_rules.yml                # Alert rules (12 rules)
+│ ├── prometheus.yml # Prometheus configuration
+│ └── alert_rules.yml # Alert rules (12 rules)
 │
 ├── grafana/
-│   ├── dashboards/
-│   │   └── claims_pipeline.json       # Main monitoring dashboard
-│   └── provisioning/
-│       ├── datasources/               # Prometheus data source config
-│       └── dashboards/                # Dashboard provisioning
+│ ├── dashboards/
+│ │ └── claims_pipeline.json # Main monitoring dashboard
+│ └── provisioning/
+│ ├── datasources/ # Prometheus data source config
+│ └── dashboards/ # Dashboard provisioning
 │
 ├── docs/
-│   ├── PHASE_1_COMPLETION.md          # Phase 1 implementation report
-│   └── BACKUP_DISASTER_RECOVERY_POLICY.md  # DR procedures
+│ ├── PHASE_1_COMPLETION.md # Phase 1 implementation report
+│ └── BACKUP_DISASTER_RECOVERY_POLICY.md # DR procedures
 │
-└── logs/                              # Application logs (gitignored)
+└── logs/ # Application logs (gitignored)
 ```
 
 ---
 
-## 🔌 API Documentation
+## API Documentation
 
 ### Health Check
 ```bash
@@ -296,7 +296,7 @@ open http://localhost:8082/lineage/visualize
 
 ---
 
-## 📊 Monitoring & Dashboards
+## Monitoring & Dashboards
 
 ### Grafana Dashboard
 The main dashboard at **http://localhost:3000/d/insurance-claims-pipeline** includes:
@@ -312,12 +312,12 @@ The main dashboard at **http://localhost:3000/d/insurance-claims-pipeline** incl
 
 ### Alert Rules (12 Total)
 
-**🔴 Critical Alerts:**
+** Critical Alerts:**
 - Component down (gives 0 minutes to respond)
 - Kafka unreachable
 - Database unreachable
 
-**⚠️ Warning Alerts:**
+**️ Warning Alerts:**
 - Error rate > 10%
 - Throughput < 1 claim/sec
 - P95 latency > 5 seconds
@@ -332,14 +332,14 @@ View alerts at: **http://localhost:9090/alerts**
 ### Key Metrics (34+)
 
 ```
-insurance_claims_received_total          # Total claims received
-insurance_claims_processed_total         # Claims through each stage
-insurance_claims_processing_duration_seconds  # Stage latency
-insurance_fraud_score_distribution       # Fraud score histogram
-insurance_fraud_flagged_total            # High-risk claims count
-pipeline_processing_errors_total         # Error count by stage
-pipeline_component_status                # Component health (0-1)
-lineage_event_total                      # Lineage tracking events
+insurance_claims_received_total # Total claims received
+insurance_claims_processed_total # Claims through each stage
+insurance_claims_processing_duration_seconds # Stage latency
+insurance_fraud_score_distribution # Fraud score histogram
+insurance_fraud_flagged_total # High-risk claims count
+pipeline_processing_errors_total # Error count by stage
+pipeline_component_status # Component health (0-1)
+lineage_event_total # Lineage tracking events
 ```
 
 ---
@@ -377,7 +377,7 @@ open http://localhost:8081
 ```bash
 # View latest claims in database
 docker compose exec postgres psql -U pipeline_admin -d insurance_lineage \
-  -c "SELECT claim_id, status, fraud_score, created_at FROM processed_claims LIMIT 10;"
+ -c "SELECT claim_id, status, fraud_score, created_at FROM processed_claims LIMIT 10;"
 
 # View lineage for a claim
 curl http://localhost:8082/lineage/claim/CLM-422DC081FC0A | jq '.'
@@ -385,7 +385,7 @@ curl http://localhost:8082/lineage/claim/CLM-422DC081FC0A | jq '.'
 
 ---
 
-## 🔄 Disaster Recovery
+## Disaster Recovery
 
 ### Backup Schedule
 - **Daily** at 2 AM UTC
@@ -433,7 +433,7 @@ See [BACKUP_DISASTER_RECOVERY_POLICY.md](docs/BACKUP_DISASTER_RECOVERY_POLICY.md
 
 ---
 
-## 👨‍💻 Development
+## ‍ Development
 
 ### Prerequisites
 - Python 3.9+
@@ -484,7 +484,7 @@ mypy src/
 
 ---
 
-## 📈 Performance Characteristics
+## Performance Characteristics
 
 | Metric | Target | Current |
 |--------|--------|---------|
@@ -497,7 +497,7 @@ mypy src/
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Pipeline won't start
 ```bash
@@ -534,7 +534,7 @@ chmod +x scripts/backup_postgres.sh
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 - [Phase 1 Completion Report](docs/PHASE_1_COMPLETION.md) - What's implemented
 - [Backup & Disaster Recovery](docs/BACKUP_DISASTER_RECOVERY_POLICY.md) - Recovery procedures
@@ -542,7 +542,7 @@ chmod +x scripts/backup_postgres.sh
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -554,13 +554,13 @@ Contributions are welcome! Please:
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 👤 Author
+## Author
 
 **Tarun**
 - GitHub: [@tarunteju2](https://github.com/tarunteju2)
@@ -568,7 +568,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Apache Kafka](https://kafka.apache.org/)
 - Monitored with [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/)
@@ -578,7 +578,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 📞 Support
+## Support
 
 For issues, questions, or suggestions:
 1. Check the [documentation](docs/)
@@ -587,5 +587,5 @@ For issues, questions, or suggestions:
 
 ---
 
-**Last Updated**: March 1, 2026  
+**Last Updated**: March 1, 2026 
 **Version**: 1.0.0
