@@ -108,6 +108,20 @@ graph LR
 
 ---
 
+## Detailed Pipeline Workflow
+
+[![Swimlane Workflow](https://i.ibb.co/Ps6bdMCq/SWIMLANE-WORKFLOW-Insurance-Claims-Pipeline-SWIMLANES-Left-to-Right-1-Orchestrator-Airflow-2-Produce.png)](https://ibb.co/Ps6bdMCq)
+
+The swimlane diagram above shows the complete step-by-step workflow:
+- **Orchestrator (Airflow)**: Triggers and coordinates the pipeline every 15 minutes
+- **Producer**: Generates and publishes claims to Kafka
+- **Stream Processor**: Validates, scores, and enriches claims in real-time
+- **Storage**: Persists data to PostgreSQL and MinIO
+- **Lineage Tracker**: Records complete data provenance and lineage
+- **Observability**: Monitors health, metrics, and distributed traces
+
+---
+
 ## Features
 
 ### Real-Time Processing
