@@ -44,27 +44,27 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 
 ```mermaid
 graph LR
-    A["Claims Producer"] -->|Kafka| B["Kafka Broker"]
-    B -->|raw-claims| C["Stream Processor"]
+    A["👤 Claims Producer"] -->|📨 Kafka| B["🔄 Kafka Broker"]
+    B -->|raw-claims| C["⚙️ Stream Processor"]
     
-    C --> D{Validate}
-    D -->|Invalid| E["DLQ"]
-    D -->|Valid| F["Fraud Detector"]
+    C --> D{✓ Validate}
+    D -->|Invalid| E["🚫 DLQ"]
+    D -->|Valid| F["🛡️ Fraud Detector"]
     
-    F --> G["Fraud Scoring<br/>8 Rules + Sigmoid"]
-    G -->|scored-claims| H["Claims Enricher"]
+    F --> G["📊 Fraud Scoring<br/>8 Rules + Sigmoid"]
+    G -->|scored-claims| H["➕ Claims Enricher"]
     
-    H --> I["Enrich<br/>- Policy Lookup<br/>- Claimant History<br/>- Geo Risk<br/>- Adjuster Assign<br/>- Reserve Estimate"]
-    I -->|enriched-claims| J["Storage Layer"]
+    H --> I["🔍 Enrich<br/>• Policy Lookup<br/>• Claimant History<br/>• Geo Risk<br/>• Adjuster Assign<br/>• Reserve Estimate"]
+    I -->|enriched-claims| J["💾 Storage Layer"]
     
-    J --> K["PostgreSQL<br/>processed_claims"]
-    J --> L["MinIO S3<br/>Stage Buckets"]
-    J --> M["Lineage Tracker<br/>Metadata & DAG"]
+    J --> K["🐘 PostgreSQL<br/>processed_claims"]
+    J --> L["🪣 MinIO S3<br/>Stage Buckets"]
+    J --> M["🔗 Lineage Tracker<br/>Metadata & DAG"]
     
-    subgraph OBS ["OBSERVABILITY LAYER"]
-        N["Prometheus<br/>Metrics"]
-        O["Jaeger<br/>Distributed Tracing"]
-        P["Grafana<br/>Dashboards"]
+    subgraph OBS ["👁️ OBSERVABILITY LAYER"]
+        N["📈 Prometheus<br/>Metrics"]
+        O["🕵️ Jaeger<br/>Distributed Tracing"]
+        P["📊 Grafana<br/>Dashboards"]
         N --> P
     end
     
@@ -75,14 +75,23 @@ graph LR
     K -.->|health| N
     L -.->|health| N
     
-    style A fill:#4CAF50
-    style B fill:#FF9800
-    style C fill:#2196F3
-    style K fill:#9C27B0
-    style L fill:#FF5722
-    style M fill:#00BCD4
-    style OBS fill:#f0f0f0
-    style E fill:#f44336
+    style A fill:#4CAF50,color:#fff
+    style B fill:#FF9800,color:#fff
+    style C fill:#2196F3,color:#fff
+    style D fill:#FFC107,color:#000
+    style E fill:#f44336,color:#fff
+    style F fill:#FF5722,color:#fff
+    style G fill:#FF5722,color:#fff
+    style H fill:#9C27B0,color:#fff
+    style I fill:#9C27B0,color:#fff
+    style J fill:#00897B,color:#fff
+    style K fill:#00897B,color:#fff
+    style L fill:#FF5722,color:#fff
+    style M fill:#00BCD4,color:#fff
+    style N fill:#455A64,color:#fff
+    style O fill:#455A64,color:#fff
+    style P fill:#455A64,color:#fff
+    style OBS fill:#eceff1
 ```
 
 ### Key Components
