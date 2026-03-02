@@ -161,9 +161,18 @@ class InsuranceClaimsStreamProcessor:
                 # Stage 1: Validation
                 is_valid, claim = self.validator.validate(claim)
                 if not is_valid:
+                    claim.processing_metadata['dlq_reason'] = 'validation_failed'
+                    claim.processing_metadata['dlq_at'] = datetime.utcnow().isoformat()
+                    claim.processing_metadata['dlq_error_codes'] = claim.processing_metadata.get(
+                        'validation_error_codes', []
+                    )
                     self._produce_to_topic(config.kafka.topics["dlq"], claim)
                     self._store_to_s3(claim, "rejected")
                     span.set_attribute("pipeline.result", "rejected_validation")
+                    span.set_attribute(
+                        "pipeline.validation_error_codes",
+                        ",".join(claim.processing_metadata.get('validation_error_codes', []))
+                    )
                     return claim
 
                 self._produce_to_topic(config.kafka.topics["validated"], claim)

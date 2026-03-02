@@ -7,11 +7,13 @@ import json
 import time
 import sys
 import os
+from datetime import date, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.models.claims import InsuranceClaim, ClaimType, ClaimStatus, RiskLevel
 from src.processors.claims_validator import ClaimsValidator
+from src.processors import claims_validator as claims_validator_module
 from src.processors.fraud_detector import FraudDetector
 from src.processors.claims_enricher import ClaimsEnricher
 from src.observability.tracing import init_tracing
@@ -66,15 +68,17 @@ class TestInsuranceClaimModel:
 
 class TestClaimsValidator:
     def setup_method(self):
+        claims_validator_module.lineage_tracker.record_event = lambda **kwargs: None
         self.validator = ClaimsValidator()
 
     def test_valid_auto_claim(self):
+        recent_loss = (date.today() - timedelta(days=10)).isoformat()
         claim = InsuranceClaim(
             policy_number="AUT-123456",
             claimant_name="John Doe",
             claim_type=ClaimType.AUTO,
             claim_amount=5000.00,
-            date_of_loss="2025-01-15",
+            date_of_loss=recent_loss,
             description="Rear-end collision",
         )
         is_valid, result = self.validator.validate(claim)
@@ -83,12 +87,13 @@ class TestClaimsValidator:
         assert len(result.validation_errors) == 0
 
     def test_missing_policy_number(self):
+        recent_loss = (date.today() - timedelta(days=5)).isoformat()
         claim = InsuranceClaim(
             policy_number="",
             claimant_name="John Doe",
             claim_type=ClaimType.AUTO,
             claim_amount=5000.00,
-            date_of_loss="2025-01-15",
+            date_of_loss=recent_loss,
         )
         is_valid, result = self.validator.validate(claim)
         assert is_valid is False
@@ -96,23 +101,25 @@ class TestClaimsValidator:
         assert any("policy_number" in e for e in result.validation_errors)
 
     def test_invalid_policy_format(self):
+        recent_loss = (date.today() - timedelta(days=5)).isoformat()
         claim = InsuranceClaim(
             policy_number="INVALID",
             claimant_name="John Doe",
             claim_type=ClaimType.AUTO,
             claim_amount=5000.00,
-            date_of_loss="2025-01-15",
+            date_of_loss=recent_loss,
         )
         is_valid, result = self.validator.validate(claim)
         assert is_valid is False
 
     def test_health_claim_requires_provider(self):
+        recent_loss = (date.today() - timedelta(days=7)).isoformat()
         claim = InsuranceClaim(
             policy_number="HLT-123456",
             claimant_name="Jane Smith",
             claim_type=ClaimType.HEALTH,
             claim_amount=10000.00,
-            date_of_loss="2025-02-01",
+            date_of_loss=recent_loss,
             provider_name=None,
         )
         is_valid, result = self.validator.validate(claim)
@@ -130,6 +137,55 @@ class TestClaimsValidator:
         is_valid, result = self.validator.validate(claim)
         assert is_valid is False
         assert any("future" in e.lower() for e in result.validation_errors)
+
+    def test_date_filed_before_loss_rejected(self):
+        loss_date = (date.today() - timedelta(days=10)).isoformat()
+        filed_date = (date.today() - timedelta(days=15)).isoformat()
+        claim = InsuranceClaim(
+            policy_number="AUT-123456",
+            claimant_name="Date Test",
+            claim_type=ClaimType.AUTO,
+            claim_amount=5000.00,
+            date_of_loss=loss_date,
+            date_filed=filed_date,
+            vehicle_vin="1HGCM82633A004352",
+        )
+        is_valid, result = self.validator.validate(claim)
+        assert is_valid is False
+        assert "FILED_BEFORE_LOSS" in result.processing_metadata.get('validation_error_codes', [])
+
+    def test_invalid_auto_vin_rejected(self):
+        recent_loss = (date.today() - timedelta(days=12)).isoformat()
+        recent_filed = (date.today() - timedelta(days=10)).isoformat()
+        claim = InsuranceClaim(
+            policy_number="AUT-123456",
+            claimant_name="VIN Test",
+            claim_type=ClaimType.AUTO,
+            claim_amount=200000.00,
+            date_of_loss=recent_loss,
+            date_filed=recent_filed,
+            vehicle_vin="INVALIDVIN123",
+            description="Major front-end collision on interstate resulting in significant damage.",
+        )
+        is_valid, result = self.validator.validate(claim)
+        assert is_valid is False
+        assert "INVALID_VIN_FORMAT" in result.processing_metadata.get('validation_error_codes', [])
+
+    def test_validation_error_details_are_structured(self):
+        recent_loss = (date.today() - timedelta(days=8)).isoformat()
+        claim = InsuranceClaim(
+            policy_number="BAD",
+            claimant_name="X",
+            claim_type=ClaimType.AUTO,
+            claim_amount=1000.00,
+            date_of_loss=recent_loss,
+        )
+        is_valid, result = self.validator.validate(claim)
+        assert is_valid is False
+
+        details = result.processing_metadata.get('validation_error_details', [])
+        assert len(details) > 0
+        assert all('code' in item and 'field' in item and 'message' in item for item in details)
 
 
 class TestFraudDetector:

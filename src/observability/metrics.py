@@ -96,6 +96,13 @@ PIPELINE_ERROR_TOTAL = Counter(
     registry=REGISTRY
 )
 
+VALIDATION_ERROR_CODES_TOTAL = Counter(
+    'insurance_validation_error_codes_total',
+    'Total validation errors by code',
+    ['error_code', 'field', 'claim_type'],
+    registry=REGISTRY
+)
+
 PIPELINE_COMPONENT_STATUS = Gauge(
     'insurance_pipeline_component_status',
     'Pipeline component health (1=healthy, 0=down)',
