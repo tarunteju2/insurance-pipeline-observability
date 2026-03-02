@@ -40,7 +40,9 @@ Built with **Apache Kafka**, **PostgreSQL**, **Prometheus**, **Grafana**, **Jaeg
 
 ---
 
-## ️ Architecture
+## Architecture
+
+![Architecture Diagram](https://ibb.co/Ps6bdMCq)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
