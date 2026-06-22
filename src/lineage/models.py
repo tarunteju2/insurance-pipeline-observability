@@ -93,6 +93,21 @@ class ProcessedClaim(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class ClaimIdempotencyRecord(Base):
+    """
+    Tracks idempotency keys for processed claims to prevent duplicate processing.
+    A claim is considered a duplicate when policy_number + date_of_loss + claim_amount
+    produce the same SHA-256 idempotency_key.
+    """
+    __tablename__ = 'claim_idempotency_records'
+
+    idempotency_key = Column(String(64), primary_key=True)
+    claim_id = Column(String(255), nullable=False)
+    policy_number = Column(String(100), nullable=False)
+    first_seen_at = Column(DateTime, default=datetime.utcnow)
+    processing_count = Column(Integer, default=1)
+
+
 class PipelineHealthSnapshot(Base):
     __tablename__ = 'pipeline_health_snapshots'
 

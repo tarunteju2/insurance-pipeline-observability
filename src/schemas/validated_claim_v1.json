@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "insurance.claims.validated.v1",
+  "title": "ValidatedInsuranceClaim",
+  "description": "Schema for claims that have passed all validation rules. Version v1.",
+  "allOf": [{"$ref": "raw_claim_v1.json"}],
+  "properties": {
+    "status": {"type": "string", "enum": ["validated"]},
+    "processing_metadata": {
+      "type": "object",
+      "required": ["validated_at", "validation_latency_ms",
+                   "validation_error_details", "validation_error_codes",
+                   "validation_error_count", "has_critical_validation_error",
+                   "validation_severity_summary"],
+      "properties": {
+        "validated_at":                   {"type": "string"},
+        "validation_latency_ms":          {"type": "number"},
+        "validation_error_details":       {"type": "array"},
+        "validation_error_codes":         {"type": "array", "items": {"type": "string"}},
+        "validation_error_count":         {"type": "integer", "const": 0},
+        "has_critical_validation_error":  {"type": "boolean", "const": false},
+        "validation_severity_summary":    {"type": "object"}
+      }
+    }
+  }
+}

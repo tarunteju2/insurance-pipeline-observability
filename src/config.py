@@ -8,6 +8,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ---------------------------------------------------------------------------
+# Detect active environment (dev / staging / prod) and load the matching file
+# ---------------------------------------------------------------------------
+_ENV = os.getenv("APP_ENV", "dev").lower()
+_env_file = os.path.join(os.path.dirname(__file__), "..", "config", f"{_ENV}.env")
+if os.path.exists(_env_file):
+    load_dotenv(_env_file, override=False)
+
 
 @dataclass
 class KafkaConfig:
@@ -33,7 +41,8 @@ class PostgresConfig:
     port: int = int(os.getenv("POSTGRES_PORT", "5432"))
     database: str = os.getenv("POSTGRES_DB", "insurance_lineage")
     user: str = os.getenv("POSTGRES_USER", "pipeline_admin")
-    password: str = os.getenv("POSTGRES_PASSWORD", "securepass123")
+    # No hard-coded fallback — must be supplied via env or .env file
+    password: str = os.getenv("POSTGRES_PASSWORD", "")
 
     @property
     def connection_string(self) -> str:
@@ -43,10 +52,10 @@ class PostgresConfig:
 @dataclass
 class MinIOConfig:
     endpoint: str = os.getenv("MINIO_ENDPOINT", "localhost:9000")
-    access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-    secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin123")
+    access_key: str = os.getenv("MINIO_ACCESS_KEY", "")
+    secret_key: str = os.getenv("MINIO_SECRET_KEY", "")
     bucket: str = os.getenv("MINIO_BUCKET", "insurance-claims-lake")
-    use_ssl: bool = False
+    use_ssl: bool = os.getenv("MINIO_USE_SSL", "false").lower() == "true"
 
 
 @dataclass
@@ -63,14 +72,45 @@ class ObservabilityConfig:
 
 
 @dataclass
+class SLOConfig:
+    """
+    Service Level Objectives per pipeline stage.
+    Prometheus recording rules evaluate these continually.
+    Breach = page-worthy incident.
+    """
+    # Latency: P95 must be under these ms thresholds
+    validation_latency_p95_ms: float = float(os.getenv("SLO_VALIDATION_LATENCY_P95_MS", "500"))
+    fraud_latency_p95_ms: float = float(os.getenv("SLO_FRAUD_LATENCY_P95_MS", "1000"))
+    enrichment_latency_p95_ms: float = float(os.getenv("SLO_ENRICHMENT_LATENCY_P95_MS", "2000"))
+    pipeline_latency_p95_ms: float = float(os.getenv("SLO_PIPELINE_LATENCY_P95_MS", "5000"))
+
+    # Error rate: must stay below this fraction per stage
+    max_error_rate: float = float(os.getenv("SLO_MAX_ERROR_RATE", "0.05"))        # 5%
+    max_dlq_rate: float = float(os.getenv("SLO_MAX_DLQ_RATE", "0.02"))            # 2%
+
+    # Throughput: minimum claims/sec the pipeline must sustain
+    min_throughput_per_sec: float = float(os.getenv("SLO_MIN_THROUGHPUT_PER_SEC", "1.0"))
+
+    # Lineage: % of claims that must have full lineage coverage
+    min_lineage_coverage_pct: float = float(os.getenv("SLO_MIN_LINEAGE_COVERAGE_PCT", "80.0"))
+
+    # Data quality: minimum acceptable DQ scorecard scores (0–1)
+    min_dq_completeness: float = float(os.getenv("SLO_MIN_DQ_COMPLETENESS", "0.95"))
+    min_dq_validity: float = float(os.getenv("SLO_MIN_DQ_VALIDITY", "0.90"))
+    min_dq_timeliness: float = float(os.getenv("SLO_MIN_DQ_TIMELINESS", "0.95"))
+
+
+@dataclass
 class PipelineConfig:
     kafka: KafkaConfig = field(default_factory=KafkaConfig)
     postgres: PostgresConfig = field(default_factory=PostgresConfig)
     minio: MinIOConfig = field(default_factory=MinIOConfig)
     jaeger: JaegerConfig = field(default_factory=JaegerConfig)
     observability: ObservabilityConfig = field(default_factory=ObservabilityConfig)
+    slo: SLOConfig = field(default_factory=SLOConfig)
     batch_size: int = int(os.getenv("CLAIMS_BATCH_SIZE", "100"))
     processing_interval: int = int(os.getenv("PROCESSING_INTERVAL_SECONDS", "5"))
+    environment: str = _ENV
 
 
 # Initialize config once at startup for use throughout the app

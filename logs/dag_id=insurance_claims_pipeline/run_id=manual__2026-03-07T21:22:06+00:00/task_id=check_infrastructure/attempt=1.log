@@ -1,0 +1,28 @@
+[2026-03-07T21:22:07.747+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: insurance_claims_pipeline.check_infrastructure manual__2026-03-07T21:22:06+00:00 [queued]>
+[2026-03-07T21:22:07.756+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: insurance_claims_pipeline.check_infrastructure manual__2026-03-07T21:22:06+00:00 [queued]>
+[2026-03-07T21:22:07.756+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-03-07T21:22:07.769+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): check_infrastructure> on 2026-03-07 21:22:06+00:00
+[2026-03-07T21:22:07.773+0000] {standard_task_runner.py:60} INFO - Started process 1065 to run task
+[2026-03-07T21:22:07.776+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'insurance_claims_pipeline', 'check_infrastructure', 'manual__2026-03-07T21:22:06+00:00', '--job-id', '21', '--raw', '--subdir', 'DAGS_FOLDER/insurance_claims_pipeline.py', '--cfg-path', '/tmp/tmpgygtapg9']
+[2026-03-07T21:22:07.778+0000] {standard_task_runner.py:88} INFO - Job 21: Subtask check_infrastructure
+[2026-03-07T21:22:07.828+0000] {task_command.py:423} INFO - Running <TaskInstance: insurance_claims_pipeline.check_infrastructure manual__2026-03-07T21:22:06+00:00 [running]> on host 9dc18f9f578f
+[2026-03-07T21:22:07.896+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='insurance-pipeline-team' AIRFLOW_CTX_DAG_ID='insurance_claims_pipeline' AIRFLOW_CTX_TASK_ID='check_infrastructure' AIRFLOW_CTX_EXECUTION_DATE='2026-03-07T21:22:06+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-07T21:22:06+00:00'
+[2026-03-07T21:22:08.098+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:22:08 [info     ] OTLP tracing exporter initialized endpoint=http://jaeger:4317
+[2026-03-07T21:22:08.098+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:22:08 [info     ] Tracing initialized            service=airflow-health-check
+[2026-03-07T21:22:08.534+0000] {_client.py:1027} INFO - HTTP Request: GET http://jaeger:16686/api/services "HTTP/1.1 200 OK"
+[2026-03-07T21:22:08.566+0000] {logging_mixin.py:188} INFO - Infrastructure Health: healthy
+[2026-03-07T21:22:08.566+0000] {logging_mixin.py:188} INFO - Components: 4/10 healthy
+[2026-03-07T21:22:08.566+0000] {logging_mixin.py:188} INFO -   - kafka_broker: healthy (19.9ms)
+[2026-03-07T21:22:08.566+0000] {logging_mixin.py:188} INFO -   - claims_producer: unknown (0.0ms)
+[2026-03-07T21:22:08.566+0000] {logging_mixin.py:188} INFO -   - claims_validator: unknown (0.0ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - fraud_detector: unknown (0.0ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - claims_enricher: unknown (0.0ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - postgres_db: healthy (7.5ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - minio_s3: healthy (290.4ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - jaeger_tracing: healthy (118.0ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - prometheus_metrics: unknown (0.0ms)
+[2026-03-07T21:22:08.567+0000] {logging_mixin.py:188} INFO -   - lineage_tracker: unknown (0.0ms)
+[2026-03-07T21:22:08.567+0000] {python.py:201} INFO - Done. Returned value was: healthy
+[2026-03-07T21:22:08.585+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=insurance_claims_pipeline, task_id=check_infrastructure, execution_date=20260307T212206, start_date=20260307T212207, end_date=20260307T212208
+[2026-03-07T21:22:08.615+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-07T21:22:08.652+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

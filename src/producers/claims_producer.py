@@ -83,8 +83,14 @@ class InsuranceClaimsProducer:
             'bootstrap.servers': config.kafka.bootstrap_servers,
             'client.id': 'insurance-claims-producer',
             'acks': 'all',
-            'retries': 3,
-            'retry.backoff.ms': 500,
+            # Exponential back-off: up to 5 retries, starting at 100 ms,
+            # doubling each attempt — capped internally by Kafka at retry.backoff.max.ms
+            'retries': 5,
+            'retry.backoff.ms': 100,
+            'retry.backoff.max.ms': 10000,
+            # Prevent duplicate in-flight batches during broker failover
+            'enable.idempotence': True,
+            'max.in.flight.requests.per.connection': 5,
         })
         self.tracer = get_tracer("claims-producer")
         self.topic = config.kafka.topics["raw"]

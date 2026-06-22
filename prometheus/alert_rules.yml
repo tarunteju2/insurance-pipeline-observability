@@ -119,3 +119,120 @@ groups:
         annotations:
           summary: "Kafka queue depth exceeds 10,000 messages"
           description: "{{ $labels.topic }} has {{ $value }} pending messages. Consumer may be lagging."
+
+      # ===================== CIRCUIT BREAKER =====================
+
+      - alert: CircuitBreakerOpen
+        expr: insurance_circuit_breaker_state == 0
+        for: 1m
+        labels:
+          severity: critical
+          dependency: "{{ $labels.dependency }}"
+        annotations:
+          summary: "Circuit breaker OPEN for {{ $labels.dependency }}"
+          description: >
+            The circuit breaker for {{ $labels.dependency }} has tripped and is rejecting calls.
+            Check service health and Grafana circuit breaker panel.
+          runbook_url: "https://wiki.company.com/runbook/circuit-breaker-open"
+
+      - alert: CircuitBreakerFrequentTrips
+        expr: increase(insurance_circuit_breaker_trips_total[15m]) > 3
+        labels:
+          severity: warning
+          dependency: "{{ $labels.dependency }}"
+        annotations:
+          summary: "Circuit breaker for {{ $labels.dependency }} tripping frequently"
+          description: >
+            {{ $value }} trips in the last 15 minutes for {{ $labels.dependency }}.
+            The downstream service may be flapping.
+
+      # ===================== SLO COMPLIANCE =====================
+
+      - alert: ValidationLatencySLOBreach
+        expr: histogram_quantile(0.95, rate(insurance_claims_processing_duration_seconds_bucket{stage="validation"}[5m])) * 1000 > 500
+        for: 5m
+        labels:
+          severity: warning
+          slo: validation_latency_p95
+        annotations:
+          summary: "Validation P95 latency SLO breached (>500ms)"
+          description: "Current P95 validation latency is {{ $value | humanizeDuration }}. SLO target is 500ms."
+          runbook_url: "https://wiki.company.com/runbook/high-latency"
+
+      - alert: FraudScoringLatencySLOBreach
+        expr: histogram_quantile(0.95, rate(insurance_claims_processing_duration_seconds_bucket{stage="fraud_detection"}[5m])) * 1000 > 1000
+        for: 5m
+        labels:
+          severity: warning
+          slo: fraud_latency_p95
+        annotations:
+          summary: "Fraud scoring P95 latency SLO breached (>1s)"
+          description: "Current P95 fraud scoring latency is {{ $value | humanizeDuration }}."
+
+      - alert: ErrorRateSLOBreach
+        expr: (rate(insurance_pipeline_errors_total[5m]) / rate(insurance_claims_received_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          slo: error_rate
+        annotations:
+          summary: "Pipeline error rate SLO breached (>5%)"
+          description: "Error rate is {{ $value | humanizePercentage }}. SLO target is <5%."
+          runbook_url: "https://wiki.company.com/runbook/high-error-rate"
+
+      - alert: DuplicateClaimsElevated
+        expr: increase(insurance_duplicate_claims_detected_total[15m]) > 20
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elevated duplicate claim submissions detected"
+          description: "{{ $value }} duplicate claims detected in 15 minutes. Check producer idempotency config."
+
+      # ===================== DATA QUALITY SLOs =====================
+
+      - alert: DQValidityScoreLow
+        expr: insurance_dq_validity_score < 0.90
+        for: 10m
+        labels:
+          severity: warning
+          slo: dq_validity
+        annotations:
+          summary: "DQ validity score below SLO (90%)"
+          description: "Validity score is {{ $value | humanizePercentage }} for {{ $labels.claim_type }}."
+          runbook_url: "https://wiki.company.com/runbook/dq-degradation"
+
+      - alert: DQCompletenessCritical
+        expr: insurance_dq_completeness_score < 0.80
+        for: 5m
+        labels:
+          severity: critical
+          slo: dq_completeness
+        annotations:
+          summary: "DQ completeness score critically low (<80%)"
+          description: >
+            Only {{ $value | humanizePercentage }} of required fields are populated for {{ $labels.claim_type }}.
+            This may indicate a producer-side regression.
+          runbook_url: "https://wiki.company.com/runbook/dq-degradation"
+
+      - alert: CriticalValidationFailuresElevated
+        expr: increase(insurance_dq_critical_failures_total[15m]) > 50
+        labels:
+          severity: critical
+        annotations:
+          summary: "High volume of CRITICAL validation failures (stop-the-line triggered)"
+          description: >
+            {{ $value }} claims were hard-rejected by stop-the-line rules in the last 15 minutes.
+            Review recent producer changes or upstream data quality.
+          runbook_url: "https://wiki.company.com/runbook/dlq-spike"
+
+      - alert: UnknownSchemaVersionDetected
+        expr: increase(insurance_schema_validation_errors_total{reason="unsupported_schema_version"}[5m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Messages with unsupported schema version received"
+          description: >
+            {{ $value }} messages with an unknown schema_version were routed to the DLQ.
+            A producer may have been updated without updating the consumer's SUPPORTED_SCHEMA_VERSIONS set.
+          runbook_url: "https://wiki.company.com/runbook/schema-version-mismatch"
+

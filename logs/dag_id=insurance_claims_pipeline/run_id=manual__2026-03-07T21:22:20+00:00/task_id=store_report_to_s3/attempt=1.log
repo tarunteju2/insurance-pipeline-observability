@@ -1,0 +1,14 @@
+[2026-03-07T21:22:39.074+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: insurance_claims_pipeline.store_report_to_s3 manual__2026-03-07T21:22:20+00:00 [queued]>
+[2026-03-07T21:22:39.091+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: insurance_claims_pipeline.store_report_to_s3 manual__2026-03-07T21:22:20+00:00 [queued]>
+[2026-03-07T21:22:39.093+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-03-07T21:22:39.106+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): store_report_to_s3> on 2026-03-07 21:22:20+00:00
+[2026-03-07T21:22:39.110+0000] {standard_task_runner.py:60} INFO - Started process 1320 to run task
+[2026-03-07T21:22:39.114+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'insurance_claims_pipeline', 'store_report_to_s3', 'manual__2026-03-07T21:22:20+00:00', '--job-id', '32', '--raw', '--subdir', 'DAGS_FOLDER/insurance_claims_pipeline.py', '--cfg-path', '/tmp/tmpxltfm0hz']
+[2026-03-07T21:22:39.117+0000] {standard_task_runner.py:88} INFO - Job 32: Subtask store_report_to_s3
+[2026-03-07T21:22:39.189+0000] {task_command.py:423} INFO - Running <TaskInstance: insurance_claims_pipeline.store_report_to_s3 manual__2026-03-07T21:22:20+00:00 [running]> on host 9dc18f9f578f
+[2026-03-07T21:22:39.351+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='insurance-pipeline-team' AIRFLOW_CTX_DAG_ID='insurance_claims_pipeline' AIRFLOW_CTX_TASK_ID='store_report_to_s3' AIRFLOW_CTX_EXECUTION_DATE='2026-03-07T21:22:20+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-07T21:22:20+00:00'
+[2026-03-07T21:22:39.690+0000] {logging_mixin.py:188} INFO - Report stored: s3://insurance-claims-lake/reports/2026/03/07/batch_report_manual__2026-03-07T21:22:20+00:00.json
+[2026-03-07T21:22:39.692+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-03-07T21:22:39.709+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=insurance_claims_pipeline, task_id=store_report_to_s3, execution_date=20260307T212220, start_date=20260307T212239, end_date=20260307T212239
+[2026-03-07T21:22:39.744+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-07T21:22:39.778+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

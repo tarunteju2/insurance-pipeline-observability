@@ -1,6 +1,15 @@
 """
 Claims Validation Processor
 Validates insurance claim data integrity, required fields, and business rules.
+
+Severity model
+--------------
+Each error code is classified CRITICAL / HIGH / MEDIUM / LOW via
+VALIDATION_SEVERITY_MAP in src/models/claims.py.
+
+Stop-the-line rule: if ANY CRITICAL error is found, validation fails immediately
+and the claim is routed to the DLQ without continuing further rule checks.
+This prevents wasting fraud-detection and enrichment compute on garbage data.
 """
 
 import re
@@ -10,11 +19,15 @@ from typing import Tuple, List
 
 import structlog
 
-from src.models.claims import InsuranceClaim, ClaimStatus, ClaimType
+from src.models.claims import (
+    InsuranceClaim, ClaimStatus, ClaimType,
+    ValidationSeverity, VALIDATION_SEVERITY_MAP
+)
+from src.observability.pii_masking import mask_claim_for_logging
 from src.observability.tracing import get_tracer, PipelineSpanContext
 from src.observability.metrics import (
     CLAIMS_PROCESSED_TOTAL, CLAIMS_PROCESSING_DURATION, PIPELINE_ERROR_TOTAL,
-    VALIDATION_ERROR_CODES_TOTAL
+    VALIDATION_ERROR_CODES_TOTAL, DQ_CRITICAL_FAILURES_TOTAL
 )
 from src.lineage.tracker import lineage_tracker
 
@@ -45,11 +58,18 @@ class ClaimsValidator:
 
     @staticmethod
     def _record_error(error_list: List[dict], code: str, field: str, message: str):
+        severity = VALIDATION_SEVERITY_MAP.get(code, ValidationSeverity.MEDIUM)
         error_list.append({
             "code": code,
             "field": field,
             "message": message,
+            "severity": severity.value,
         })
+
+    @staticmethod
+    def _has_critical_error(error_details: List[dict]) -> bool:
+        """Return True if any recorded error is CRITICAL (stop-the-line)."""
+        return any(e.get("severity") == ValidationSeverity.CRITICAL.value for e in error_details)
 
     def validate(self, claim: InsuranceClaim) -> Tuple[bool, InsuranceClaim]:
         """Validate a claim and return (is_valid, updated_claim)."""
@@ -75,6 +95,14 @@ class ClaimsValidator:
                         field=field_name,
                         message=f"Missing required field: {field_name}"
                     )
+
+            # ── STOP-THE-LINE ────────────────────────────────────────────────
+            # If any required field is missing we cannot safely run further
+            # rules (risk of AttributeError / misleading secondary errors).
+            # Reject immediately; no point burning compute on the rest.
+            if self._has_critical_error(error_details):
+                return self._finalize(claim, error_details, span, start)
+            # ─────────────────────────────────────────────────────────────────
 
             # Normalize common text fields
             claim.policy_number = (claim.policy_number or "").strip().upper()
@@ -107,6 +135,12 @@ class ClaimsValidator:
                     field="claim_amount",
                     message=f"Claim amount must be positive: {claim.claim_amount}"
                 )
+
+            # ── STOP-THE-LINE ────────────────────────────────────────────────
+            # Amount violations are CRITICAL — reject before further rules.
+            if self._has_critical_error(error_details):
+                return self._finalize(claim, error_details, span, start)
+            # ─────────────────────────────────────────────────────────────────
             else:
                 max_amount = self.MAX_CLAIM_AMOUNTS.get(claim.claim_type, 1_000_000)
                 if claim.claim_amount > max_amount:
@@ -217,64 +251,90 @@ class ClaimsValidator:
 
             errors = [entry["message"] for entry in error_details]
 
-            # Update claim
-            latency_ms = (time.time() - start) * 1000
+            # After date checks, do a final CRITICAL stop-the-line sweep
+            if self._has_critical_error(error_details):
+                return self._finalize(claim, error_details, span, start)
 
-            is_valid = len(errors) == 0
-            claim.validation_errors = errors
-            claim.status = ClaimStatus.VALIDATED if is_valid else ClaimStatus.VALIDATION_FAILED
-            claim.processing_metadata['validated_at'] = datetime.utcnow().isoformat()
-            claim.processing_metadata['validation_latency_ms'] = round(latency_ms, 2)
-            claim.processing_metadata['validation_error_details'] = error_details
-            claim.processing_metadata['validation_error_codes'] = [entry['code'] for entry in error_details]
-            claim.processing_metadata['validation_error_count'] = len(error_details)
+            return self._finalize(claim, error_details, span, start)
 
-            # Record metrics
-            CLAIMS_PROCESSED_TOTAL.labels(
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _finalize(self, claim: InsuranceClaim, error_details: list, span, start: float):
+        """Commit final validation state onto the claim and emit metrics/lineage."""
+        errors = [entry["message"] for entry in error_details]
+        latency_ms = (time.time() - start) * 1000
+
+        is_valid = len(errors) == 0
+        has_critical = self._has_critical_error(error_details)
+
+        claim.validation_errors = errors
+        claim.status = ClaimStatus.VALIDATED if is_valid else ClaimStatus.VALIDATION_FAILED
+        claim.processing_metadata['validated_at'] = datetime.utcnow().isoformat()
+        claim.processing_metadata['validation_latency_ms'] = round(latency_ms, 2)
+        claim.processing_metadata['validation_error_details'] = error_details
+        claim.processing_metadata['validation_error_codes'] = [e['code'] for e in error_details]
+        claim.processing_metadata['validation_error_count'] = len(error_details)
+        claim.processing_metadata['has_critical_validation_error'] = has_critical
+        claim.processing_metadata['validation_severity_summary'] = {
+            sev: sum(1 for e in error_details if e.get('severity') == sev)
+            for sev in ('critical', 'high', 'medium', 'low')
+        }
+
+        # Metrics
+        CLAIMS_PROCESSED_TOTAL.labels(
+            stage="validation",
+            status="success" if is_valid else "failed",
+            claim_type=claim.claim_type.value
+        ).inc()
+        CLAIMS_PROCESSING_DURATION.labels(
+            stage="validation",
+            claim_type=claim.claim_type.value
+        ).observe(latency_ms / 1000)
+
+        if not is_valid:
+            PIPELINE_ERROR_TOTAL.labels(
                 stage="validation",
-                status="success" if is_valid else "failed",
-                claim_type=claim.claim_type.value
+                error_type="validation_failure"
             ).inc()
-            CLAIMS_PROCESSING_DURATION.labels(
-                stage="validation",
-                claim_type=claim.claim_type.value
-            ).observe(latency_ms / 1000)
-
-            if not is_valid:
-                PIPELINE_ERROR_TOTAL.labels(
-                    stage="validation",
-                    error_type="validation_failure"
+            for detail in error_details:
+                VALIDATION_ERROR_CODES_TOTAL.labels(
+                    error_code=detail["code"],
+                    field=detail["field"],
+                    claim_type=claim.claim_type.value
                 ).inc()
-                for detail in error_details:
-                    VALIDATION_ERROR_CODES_TOTAL.labels(
+                if detail.get("severity") == "critical":
+                    DQ_CRITICAL_FAILURES_TOTAL.labels(
                         error_code=detail["code"],
-                        field=detail["field"],
                         claim_type=claim.claim_type.value
                     ).inc()
 
-            # Record lineage
-            target = "tx_fraud_detection" if is_valid else "sink_dlq"
-            source = "tx_validation" if is_valid else "tx_validation"
-            lineage_source = "src_claims_ingestion"
-            try:
-                lineage_tracker.record_event(
-                    source_node_id=lineage_source,
-                    target_node_id="tx_validation",
-                    claim_id=claim.claim_id,
-                    latency_ms=latency_ms,
-                    status="success" if is_valid else "failure",
-                    error_message="; ".join(errors) if errors else None,
-                )
-            except Exception as e:
-                logger.warning("Lineage recording failed", error=str(e))
+        # Lineage
+        try:
+            lineage_tracker.record_event(
+                source_node_id="src_claims_ingestion",
+                target_node_id="tx_validation",
+                claim_id=claim.claim_id,
+                latency_ms=latency_ms,
+                status="success" if is_valid else "failure",
+                error_message="; ".join(errors) if errors else None,
+            )
+        except Exception as e:
+            logger.warning("Lineage recording failed", error=str(e))
 
-            span.set_attribute("validation.is_valid", is_valid)
-            span.set_attribute("validation.error_count", len(errors))
+        span.set_attribute("validation.is_valid", is_valid)
+        span.set_attribute("validation.error_count", len(errors))
+        span.set_attribute("validation.has_critical", has_critical)
 
-            logger.info("Claim validated",
-                        claim_id=claim.claim_id,
-                        valid=is_valid,
-                        errors=len(errors),
-                        latency_ms=round(latency_ms, 2))
+        masked = mask_claim_for_logging({"claim_id": claim.claim_id,
+                                         "claimant_name": claim.claimant_name,
+                                         "policy_number": claim.policy_number})
+        logger.info("Claim validated",
+                    **masked,
+                    valid=is_valid,
+                    errors=len(errors),
+                    has_critical=has_critical,
+                    latency_ms=round(latency_ms, 2))
 
-            return is_valid, claim
+        return is_valid, claim

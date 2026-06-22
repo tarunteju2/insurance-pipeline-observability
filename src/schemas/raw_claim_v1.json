@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "insurance.claims.raw.v1",
+  "title": "RawInsuranceClaim",
+  "description": "Schema for raw claim events produced to insurance.claims.raw topic. Version v1.",
+  "type": "object",
+  "required": [
+    "claim_id", "schema_version", "idempotency_key",
+    "policy_number", "claimant_name", "claim_type",
+    "claim_amount", "date_of_loss", "date_filed",
+    "status", "timestamp"
+  ],
+  "properties": {
+    "claim_id":         {"type": "string", "pattern": "^CLM-[A-F0-9]{12}$"},
+    "schema_version":   {"type": "string", "enum": ["v1"]},
+    "idempotency_key":  {"type": "string", "minLength": 32, "maxLength": 64},
+    "policy_number":    {"type": "string", "pattern": "^[A-Z]{3}-\\d{6}$"},
+    "claimant_name":    {"type": "string", "minLength": 2, "maxLength": 100},
+    "claim_type":       {"type": "string", "enum": ["auto","health","property","life","liability","workers_comp"]},
+    "claim_amount":     {"type": "number", "exclusiveMinimum": 0, "maximum": 10000000},
+    "date_of_loss":     {"type": "string", "format": "date"},
+    "date_filed":       {"type": "string", "format": "date"},
+    "description":      {"type": "string", "default": ""},
+    "status":           {"type": "string"},
+    "fraud_score":      {"type": "number", "minimum": 0, "maximum": 1, "default": 0.0},
+    "risk_level":       {"type": "string", "enum": ["low","medium","high","critical"], "default": "low"},
+    "provider_name":    {"type": ["string", "null"]},
+    "diagnosis_code":   {"type": ["string", "null"]},
+    "vehicle_vin":      {"type": ["string", "null"]},
+    "property_address": {"type": ["string", "null"]},
+    "validation_errors":     {"type": "array"},
+    "enrichment_data":       {"type": "object"},
+    "processing_metadata":   {"type": "object"},
+    "trace_id":              {"type": ["string", "null"]},
+    "span_id":               {"type": ["string", "null"]},
+    "timestamp":             {"type": "string"}
+  },
+  "additionalProperties": false
+}

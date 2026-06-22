@@ -172,10 +172,113 @@ PIPELINE_INFO = Info(
     registry=REGISTRY
 )
 PIPELINE_INFO.info({
-    'version': '1.0.0',
+    'version': '2.0.0',
     'environment': 'development',
     'pipeline_name': 'insurance-claims-observability'
 })
+
+# ==================== DATA QUALITY SCORECARD ====================
+# Each gauge holds a score between 0 (worst) and 1 (perfect) per batch.
+# SLO thresholds are defined in config.SLOConfig and checked by Prometheus rules.
+
+DQ_COMPLETENESS = Gauge(
+    'insurance_dq_completeness_score',
+    'Fraction of required fields that are non-null across the batch (0–1)',
+    ['claim_type'],
+    registry=REGISTRY
+)
+
+DQ_VALIDITY = Gauge(
+    'insurance_dq_validity_score',
+    'Fraction of claims that pass all validation rules in the batch (0–1)',
+    ['claim_type'],
+    registry=REGISTRY
+)
+
+DQ_TIMELINESS = Gauge(
+    'insurance_dq_timeliness_score',
+    'Fraction of claims filed within 30 days of loss (0–1)',
+    ['claim_type'],
+    registry=REGISTRY
+)
+
+DQ_CONSISTENCY = Gauge(
+    'insurance_dq_consistency_score',
+    'Fraction of claims with internally consistent fields (0–1)',
+    ['claim_type'],
+    registry=REGISTRY
+)
+
+DQ_OVERALL_SCORE = Gauge(
+    'insurance_dq_overall_score',
+    'Weighted average of completeness, validity, timeliness, consistency (0–1)',
+    ['claim_type'],
+    registry=REGISTRY
+)
+
+DQ_CRITICAL_FAILURES_TOTAL = Counter(
+    'insurance_dq_critical_failures_total',
+    'Total claims rejected by stop-the-line (CRITICAL severity validation error)',
+    ['error_code', 'claim_type'],
+    registry=REGISTRY
+)
+
+# ==================== IDEMPOTENCY / DEDUP ====================
+
+DUPLICATE_CLAIMS_DETECTED = Counter(
+    'insurance_duplicate_claims_detected_total',
+    'Total claims rejected as duplicates (same idempotency key seen before)',
+    ['claim_type'],
+    registry=REGISTRY
+)
+
+# ==================== CIRCUIT BREAKER ====================
+
+CIRCUIT_BREAKER_STATE = Gauge(
+    'insurance_circuit_breaker_state',
+    'Circuit breaker state: 1=CLOSED (healthy), 0.5=HALF_OPEN, 0=OPEN (tripped)',
+    ['dependency'],
+    registry=REGISTRY
+)
+
+CIRCUIT_BREAKER_TRIPS = Counter(
+    'insurance_circuit_breaker_trips_total',
+    'Total number of times a circuit breaker has tripped to OPEN state',
+    ['dependency'],
+    registry=REGISTRY
+)
+
+CIRCUIT_BREAKER_REJECTED_CALLS = Counter(
+    'insurance_circuit_breaker_rejected_calls_total',
+    'Total calls rejected because a circuit was OPEN',
+    ['dependency'],
+    registry=REGISTRY
+)
+
+# ==================== SLO COMPLIANCE ====================
+
+SLO_COMPLIANCE = Gauge(
+    'insurance_slo_compliance',
+    'Whether the current SLO target is being met: 1=within SLO, 0=breached',
+    ['slo_name', 'stage'],
+    registry=REGISTRY
+)
+
+# ==================== SCHEMA GOVERNANCE ====================
+
+SCHEMA_VERSION_COUNTER = Counter(
+    'insurance_schema_version_total',
+    'Count of messages by schema version — alerts on unexpected versions at ingestion',
+    ['schema_version', 'topic'],
+    registry=REGISTRY
+)
+
+SCHEMA_VALIDATION_ERRORS = Counter(
+    'insurance_schema_validation_errors_total',
+    'Total messages rejected due to schema version mismatch or unknown schema',
+    ['reason', 'topic'],
+    registry=REGISTRY
+)
 
 
 def start_metrics_server(port: int = 8000):

@@ -1,0 +1,68 @@
+[2026-03-07T21:14:10.961+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: insurance_claims_pipeline.produce_claims manual__2026-03-02T01:46:19+00:00 [queued]>
+[2026-03-07T21:14:11.009+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: insurance_claims_pipeline.produce_claims manual__2026-03-02T01:46:19+00:00 [queued]>
+[2026-03-07T21:14:11.011+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-03-07T21:14:11.069+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): produce_claims> on 2026-03-02 01:46:19+00:00
+[2026-03-07T21:14:11.094+0000] {standard_task_runner.py:60} INFO - Started process 404 to run task
+[2026-03-07T21:14:11.102+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'insurance_claims_pipeline', 'produce_claims', 'manual__2026-03-02T01:46:19+00:00', '--job-id', '4', '--raw', '--subdir', 'DAGS_FOLDER/insurance_claims_pipeline.py', '--cfg-path', '/tmp/tmpesj2v0ou']
+[2026-03-07T21:14:11.107+0000] {standard_task_runner.py:88} INFO - Job 4: Subtask produce_claims
+[2026-03-07T21:14:11.185+0000] {task_command.py:423} INFO - Running <TaskInstance: insurance_claims_pipeline.produce_claims manual__2026-03-02T01:46:19+00:00 [running]> on host 9dc18f9f578f
+[2026-03-07T21:14:11.297+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='insurance-pipeline-team' AIRFLOW_CTX_DAG_ID='insurance_claims_pipeline' AIRFLOW_CTX_TASK_ID='produce_claims' AIRFLOW_CTX_EXECUTION_DATE='2026-03-02T01:46:19+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-02T01:46:19+00:00'
+[2026-03-07T21:14:12.193+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] OTLP tracing exporter initialized endpoint=http://jaeger:4317
+[2026-03-07T21:14:12.194+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Tracing initialized            service=airflow-claims-producer
+[2026-03-07T21:14:12.232+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=90945.44 claim_id=CLM-C43D04C78450 claim_type=workers_comp
+[2026-03-07T21:14:12.235+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=145999.63 claim_id=CLM-6F55F7816113 claim_type=life
+[2026-03-07T21:14:12.236+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=6850.78 claim_id=CLM-CF11D9B1EF3F claim_type=auto
+[2026-03-07T21:14:12.237+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=157707.8 claim_id=CLM-D32EEC008038 claim_type=property
+[2026-03-07T21:14:12.237+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=59124.13 claim_id=CLM-73CA3691ABA9 claim_type=auto
+[2026-03-07T21:14:12.238+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=175122.98 claim_id=CLM-CBA1BF41EA56 claim_type=liability
+[2026-03-07T21:14:12.239+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=90591.58 claim_id=CLM-A21634DC45FF claim_type=liability
+[2026-03-07T21:14:12.240+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=967312.53 claim_id=CLM-325F0E3EB31D claim_type=life
+[2026-03-07T21:14:12.242+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=43753.0 claim_id=CLM-B98A5004D2A6 claim_type=workers_comp
+[2026-03-07T21:14:12.243+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=324375.43 claim_id=CLM-5746A4C763F4 claim_type=life
+[2026-03-07T21:14:12.243+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=93656.09 claim_id=CLM-62A1EBF7E10D claim_type=property
+[2026-03-07T21:14:12.244+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=145309.01 claim_id=CLM-A422E062AD26 claim_type=liability
+[2026-03-07T21:14:12.245+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=54822.84 claim_id=CLM-F2D27926B93B claim_type=property
+[2026-03-07T21:14:12.246+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=112758.51 claim_id=CLM-C4EAA10A24DE claim_type=liability
+[2026-03-07T21:14:12.246+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=232191.38 claim_id=CLM-8CA4B12E6B1B claim_type=auto
+[2026-03-07T21:14:12.247+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=1731565.37 claim_id=CLM-1ACC4317F7A7 claim_type=life
+[2026-03-07T21:14:12.247+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=481493.02 claim_id=CLM-4FD28C035B44 claim_type=life
+[2026-03-07T21:14:12.248+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=188103.37 claim_id=CLM-405D8A3B87C6 claim_type=property
+[2026-03-07T21:14:12.249+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=15472.13 claim_id=CLM-81090C474C78 claim_type=workers_comp
+[2026-03-07T21:14:12.250+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=454980.31 claim_id=CLM-38D2B79FE1C5 claim_type=property
+[2026-03-07T21:14:12.250+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=48720.87 claim_id=CLM-438F152709BB claim_type=auto
+[2026-03-07T21:14:12.251+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=236483.76 claim_id=CLM-09B3CDE073B5 claim_type=auto
+[2026-03-07T21:14:12.251+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=2968904.55 claim_id=CLM-69F5F2FE09CF claim_type=life
+[2026-03-07T21:14:12.252+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=-100 claim_id=CLM-CBD85878A61B claim_type=workers_comp
+[2026-03-07T21:14:12.252+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=82842.48 claim_id=CLM-81267654266A claim_type=workers_comp
+[2026-03-07T21:14:12.253+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=2988.6 claim_id=CLM-4106FAF7575C claim_type=auto
+[2026-03-07T21:14:12.254+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=150539.5 claim_id=CLM-3E9AD7684513 claim_type=workers_comp
+[2026-03-07T21:14:12.254+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=748397.48 claim_id=CLM-F905C208C98C claim_type=health
+[2026-03-07T21:14:12.255+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=40208.36 claim_id=CLM-0BD0E77831CB claim_type=health
+[2026-03-07T21:14:12.256+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=101514.94 claim_id=CLM-8EDEBEAA298A claim_type=life
+[2026-03-07T21:14:12.257+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=747012.4 claim_id=CLM-D3BFE26A1105 claim_type=life
+[2026-03-07T21:14:12.257+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=-100 claim_id=CLM-CE5446202D97 claim_type=life
+[2026-03-07T21:14:12.258+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=649902.05 claim_id=CLM-21377229FB5B claim_type=life
+[2026-03-07T21:14:12.258+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=47937.66 claim_id=CLM-14261F404E62 claim_type=workers_comp
+[2026-03-07T21:14:12.259+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=48667.48 claim_id=CLM-686BEE2B0E68 claim_type=auto
+[2026-03-07T21:14:12.260+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=27833.86 claim_id=CLM-E800F62AFB7D claim_type=liability
+[2026-03-07T21:14:12.260+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=122186.5 claim_id=CLM-750BC889B2E3 claim_type=workers_comp
+[2026-03-07T21:14:12.261+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=116582.99 claim_id=CLM-B78DD792CD93 claim_type=liability
+[2026-03-07T21:14:12.261+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=135396.45 claim_id=CLM-08D2DA914D3A claim_type=health
+[2026-03-07T21:14:12.262+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=964964.77 claim_id=CLM-A075F14B1BC3 claim_type=life
+[2026-03-07T21:14:12.262+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=37512.04 claim_id=CLM-47A1A10B276D claim_type=workers_comp
+[2026-03-07T21:14:12.263+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=765943.58 claim_id=CLM-203CC490C707 claim_type=health
+[2026-03-07T21:14:12.263+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=500858.4 claim_id=CLM-DD914D2D003F claim_type=life
+[2026-03-07T21:14:12.264+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=24522.15 claim_id=CLM-1800C025B605 claim_type=auto
+[2026-03-07T21:14:12.264+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=81655.01 claim_id=CLM-B7CBBDD9AF83 claim_type=health
+[2026-03-07T21:14:12.265+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=226872.5 claim_id=CLM-CC8923CF7625 claim_type=health
+[2026-03-07T21:14:12.266+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=97560.54 claim_id=CLM-553BF2E82F40 claim_type=workers_comp
+[2026-03-07T21:14:12.266+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=118763.82 claim_id=CLM-4BE165007EE6 claim_type=workers_comp
+[2026-03-07T21:14:12.267+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=130736.76 claim_id=CLM-71BB2A19AB4E claim_type=life
+[2026-03-07T21:14:12.267+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:12 [info     ] Claim produced                 amount=51823.39 claim_id=CLM-E02927936D9D claim_type=workers_comp
+[2026-03-07T21:14:13.270+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:13 [info     ] Batch produced: 50/50 claims
+[2026-03-07T21:14:13.271+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:14:13 [info     ] Claims producer closed
+[2026-03-07T21:14:13.315+0000] {logging_mixin.py:188} INFO - Produced 50 claims to Kafka
+[2026-03-07T21:14:13.316+0000] {python.py:201} INFO - Done. Returned value was: 50
+[2026-03-07T21:14:13.339+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=insurance_claims_pipeline, task_id=produce_claims, execution_date=20260302T014619, start_date=20260307T211410, end_date=20260307T211413
+[2026-03-07T21:14:13.384+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-07T21:14:13.428+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

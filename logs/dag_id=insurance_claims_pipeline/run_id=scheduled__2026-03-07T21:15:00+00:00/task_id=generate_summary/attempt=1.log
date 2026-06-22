@@ -1,0 +1,25 @@
+[2026-03-07T21:32:14.445+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: insurance_claims_pipeline.generate_summary scheduled__2026-03-07T21:15:00+00:00 [queued]>
+[2026-03-07T21:32:14.487+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: insurance_claims_pipeline.generate_summary scheduled__2026-03-07T21:15:00+00:00 [queued]>
+[2026-03-07T21:32:14.497+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-03-07T21:32:14.597+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): generate_summary> on 2026-03-07 21:15:00+00:00
+[2026-03-07T21:32:14.643+0000] {standard_task_runner.py:60} INFO - Started process 1710 to run task
+[2026-03-07T21:32:14.707+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'insurance_claims_pipeline', 'generate_summary', 'scheduled__2026-03-07T21:15:00+00:00', '--job-id', '36', '--raw', '--subdir', 'DAGS_FOLDER/insurance_claims_pipeline.py', '--cfg-path', '/tmp/tmpmipdr3th']
+[2026-03-07T21:32:14.726+0000] {standard_task_runner.py:88} INFO - Job 36: Subtask generate_summary
+[2026-03-07T21:32:14.998+0000] {task_command.py:423} INFO - Running <TaskInstance: insurance_claims_pipeline.generate_summary scheduled__2026-03-07T21:15:00+00:00 [running]> on host 9dc18f9f578f
+[2026-03-07T21:32:15.383+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='insurance-pipeline-team' AIRFLOW_CTX_DAG_ID='insurance_claims_pipeline' AIRFLOW_CTX_TASK_ID='generate_summary' AIRFLOW_CTX_EXECUTION_DATE='2026-03-07T21:15:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-07T21:15:00+00:00'
+[2026-03-07T21:32:16.389+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:32:16 [info     ] OTLP tracing exporter initialized endpoint=http://jaeger:4317
+[2026-03-07T21:32:16.442+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:32:16 [info     ] Tracing initialized            service=airflow-summary-generator
+[2026-03-07T21:32:17.563+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-03-07T21:32:17.729+0000] {logging_mixin.py:188} INFO - CLAIMS PROCESSING SUMMARY
+[2026-03-07T21:32:17.730+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-03-07T21:32:17.734+0000] {logging_mixin.py:188} INFO - Total Claims:      11917
+[2026-03-07T21:32:17.738+0000] {logging_mixin.py:188} INFO - Completed:         11918 (100.01%)
+[2026-03-07T21:32:17.740+0000] {logging_mixin.py:188} INFO - Rejected:          0
+[2026-03-07T21:32:17.745+0000] {logging_mixin.py:188} INFO - Fraud Flagged:     0
+[2026-03-07T21:32:17.748+0000] {logging_mixin.py:188} INFO - Total Amount:      $3,090,590,205.19
+[2026-03-07T21:32:17.750+0000] {logging_mixin.py:188} INFO - Avg Fraud Score:   0.2680
+[2026-03-07T21:32:17.755+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-03-07T21:32:18.136+0000] {python.py:201} INFO - Done. Returned value was: {'total_claims': 11917, 'completed': 11918, 'rejected': 0, 'flagged_fraud': 0, 'total_amount': 3090590205.19, 'avg_fraud_score': 0.2680271438160771, 'completion_rate': 100.01, 'generated_at': '2026-03-07T21:32:17.561453'}
+[2026-03-07T21:32:18.555+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=insurance_claims_pipeline, task_id=generate_summary, execution_date=20260307T211500, start_date=20260307T213214, end_date=20260307T213218
+[2026-03-07T21:32:19.136+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-07T21:32:19.823+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

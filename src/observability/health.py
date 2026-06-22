@@ -3,6 +3,12 @@ Health checks for pipeline components.
 
 Monitors Kafka, Postgres, MinIO, Jaeger, and other services.
 Tracks latency and marks components as healthy, degraded, or down.
+
+Degradation levels
+------------------
+HEALTHY   – all checks pass, latency within SLO
+DEGRADED  – a non-critical component is down or latency above warning threshold
+UNHEALTHY – a critical component (Kafka, Postgres) is down or circuit breaker OPEN
 """
 
 import time
@@ -16,6 +22,17 @@ from src.config import config
 from src.observability.metrics import PIPELINE_COMPONENT_STATUS
 
 logger = structlog.get_logger(__name__)
+
+# Components whose failure means the pipeline cannot function
+_CRITICAL_COMPONENTS = {"kafka_broker", "postgres_db"}
+
+# Latency warning thresholds (ms) — above this, mark component degraded
+_LATENCY_WARNING_MS = {
+    "kafka_broker": 2000,
+    "postgres_db": 1000,
+    "minio_s3": 3000,
+    "jaeger_tracing": 5000,
+}
 
 
 @dataclass
@@ -160,35 +177,56 @@ class PipelineHealthMonitor:
 
     def get_overall_status(self) -> str:
         """
-        Determine if the pipeline is healthy overall.
-        
-        Returns "healthy" if all components are ok,
-        "degraded" if something is down but not critical,
-        "unknown" if nothing has been checked yet.
+        Determine overall pipeline health using three-level model:
+
+        HEALTHY   – every checked component is healthy
+        DEGRADED  – a non-critical component is down, or any component is degraded
+        UNHEALTHY – a critical component (Kafka or Postgres) is down, or
+                    a circuit breaker is OPEN
         """
-        statuses = [c.status for c in self.components.values() if c.last_heartbeat]
-        if not statuses:
+        checked = {name: c for name, c in self.components.items() if c.last_heartbeat}
+        if not checked:
             return "unknown"
-        if all(s == "healthy" for s in statuses):
-            return "healthy"
-        if any(s == "down" for s in statuses):
+
+        # Check circuit breakers (import late to avoid circular dependency)
+        try:
+            from src.observability.circuit_breaker import postgres_breaker, minio_breaker, CircuitState
+            if postgres_breaker.state == CircuitState.OPEN:
+                return "unhealthy"
+            if minio_breaker.state == CircuitState.OPEN:
+                return "degraded"
+        except Exception:
+            pass
+
+        for name, comp in checked.items():
+            if comp.status == "down" and name in _CRITICAL_COMPONENTS:
+                return "unhealthy"
+
+        if any(c.status == "down" for c in checked.values()):
             return "degraded"
-        return "degraded"
+        if any(c.status == "degraded" for c in checked.values()):
+            return "degraded"
+
+        return "healthy"
 
     def get_health_report(self) -> dict:
         """Generate a full health report for all components."""
         self.run_all_checks()
+        overall = self.get_overall_status()
         return {
-            "overall_status": self.get_overall_status(),
+            "overall_status": overall,
+            "degradation_level": {"healthy": 0, "degraded": 1, "unhealthy": 2, "unknown": -1}.get(overall, -1),
             "timestamp": datetime.utcnow().isoformat(),
             "components": {
                 name: {
                     "status": comp.status,
                     "latency_ms": round(comp.latency_ms, 2),
+                    "latency_warning": comp.latency_ms > _LATENCY_WARNING_MS.get(name, 9999),
                     "last_heartbeat": comp.last_heartbeat.isoformat() if comp.last_heartbeat else None,
                     "error_rate": comp.error_rate,
                     "throughput": comp.throughput,
                     "message": comp.message,
+                    "critical": name in _CRITICAL_COMPONENTS,
                 }
                 for name, comp in self.components.items()
             }
