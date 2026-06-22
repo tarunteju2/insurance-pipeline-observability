@@ -1,4 +1,4 @@
-FROM apache/airflow:2.8.1-python3.11
+FROM apache/airflow:2.11.1-python3.11
 
 USER root
 
@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y \
 
 USER airflow
 
-# Copy requirements
-COPY requirements.txt requirements_airflow.txt /tmp/
+# Copy requirements (py311-specific lockfile for deterministic builds)
+COPY requirements.txt requirements_airflow.txt requirements-py311.txt /tmp/
 
-# Install Python dependencies
+# Install Python dependencies (use py311 lockfile for Airflow 2.11.1)
 RUN pip install --no-cache-dir \
-    -r /tmp/requirements.txt \
+    -r /tmp/requirements-py311.txt \
     -r /tmp/requirements_airflow.txt
 
 # Copy project code

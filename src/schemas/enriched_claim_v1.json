@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "insurance.claims.enriched.v1",
+  "title": "EnrichedInsuranceClaim",
+  "description": "Schema for claims after enrichment stage. Version v1.",
+  "allOf": [{"$ref": "scored_claim_v1.json"}],
+  "properties": {
+    "status": {"type": "string", "enum": ["enriched", "completed"]},
+    "enrichment_data": {
+      "type": "object",
+      "required": ["enriched_at"],
+      "properties": {
+        "enriched_at": {"type": "string"}
+      }
+    },
+    "processing_metadata": {
+      "type": "object",
+      "required": ["enrichment_latency_ms"],
+      "properties": {
+        "enrichment_latency_ms": {"type": "number"}
+      }
+    }
+  }
+}

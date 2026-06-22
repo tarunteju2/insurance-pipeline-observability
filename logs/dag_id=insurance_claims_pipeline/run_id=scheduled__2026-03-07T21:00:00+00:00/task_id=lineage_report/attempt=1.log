@@ -1,0 +1,33 @@
+[2026-03-07T21:15:41.531+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: insurance_claims_pipeline.lineage_report scheduled__2026-03-07T21:00:00+00:00 [queued]>
+[2026-03-07T21:15:41.550+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: insurance_claims_pipeline.lineage_report scheduled__2026-03-07T21:00:00+00:00 [queued]>
+[2026-03-07T21:15:41.551+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-03-07T21:15:41.571+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): lineage_report> on 2026-03-07 21:00:00+00:00
+[2026-03-07T21:15:41.578+0000] {standard_task_runner.py:60} INFO - Started process 771 to run task
+[2026-03-07T21:15:41.585+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'insurance_claims_pipeline', 'lineage_report', 'scheduled__2026-03-07T21:00:00+00:00', '--job-id', '19', '--raw', '--subdir', 'DAGS_FOLDER/insurance_claims_pipeline.py', '--cfg-path', '/tmp/tmpxpkelt42']
+[2026-03-07T21:15:41.591+0000] {standard_task_runner.py:88} INFO - Job 19: Subtask lineage_report
+[2026-03-07T21:15:41.653+0000] {task_command.py:423} INFO - Running <TaskInstance: insurance_claims_pipeline.lineage_report scheduled__2026-03-07T21:00:00+00:00 [running]> on host 9dc18f9f578f
+[2026-03-07T21:15:41.740+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='insurance-pipeline-team' AIRFLOW_CTX_DAG_ID='insurance_claims_pipeline' AIRFLOW_CTX_TASK_ID='lineage_report' AIRFLOW_CTX_EXECUTION_DATE='2026-03-07T21:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-07T21:00:00+00:00'
+[2026-03-07T21:15:41.897+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:15:41 [info     ] OTLP tracing exporter initialized endpoint=http://jaeger:4317
+[2026-03-07T21:15:41.897+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:15:41 [info     ] Tracing initialized            service=insurance-claims-pipeline
+[2026-03-07T21:15:41.955+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-03-07T21:15:41.955+0000] {logging_mixin.py:188} INFO - PIPELINE LINEAGE REPORT
+[2026-03-07T21:15:41.955+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-03-07T21:15:41.956+0000] {logging_mixin.py:188} INFO - Total Lineage Events:  54696
+[2026-03-07T21:15:41.956+0000] {logging_mixin.py:188} INFO - Successful Events:     54075
+[2026-03-07T21:15:41.956+0000] {logging_mixin.py:188} INFO - Error Events:          621
+[2026-03-07T21:15:41.956+0000] {logging_mixin.py:188} INFO - Success Rate:          98.86%
+[2026-03-07T21:15:41.957+0000] {logging_mixin.py:188} INFO - Pipeline Coverage:     100.0%
+[2026-03-07T21:15:41.957+0000] {logging_mixin.py:188} INFO - Active Edges:          6 / 6
+[2026-03-07T21:15:41.957+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-03-07T21:15:41.957+0000] {logging_mixin.py:188} INFO - 
+Edge Statistics:
+[2026-03-07T21:15:41.957+0000] {logging_mixin.py:188} INFO -   tx_validation → sink_dlq: 0 records, 0.0ms avg, 0 errors
+[2026-03-07T21:15:41.958+0000] {logging_mixin.py:188} INFO -   src_claims_ingestion → tx_validation: 11436 records, 0.09ms avg, 621 errors
+[2026-03-07T21:15:41.958+0000] {logging_mixin.py:188} INFO -   tx_validation → tx_fraud_detection: 10815 records, 0.12ms avg, 0 errors
+[2026-03-07T21:15:41.958+0000] {logging_mixin.py:188} INFO -   tx_fraud_detection → tx_enrichment: 10815 records, 0.18ms avg, 0 errors
+[2026-03-07T21:15:41.958+0000] {logging_mixin.py:188} INFO -   tx_enrichment → sink_s3_datalake: 10815 records, 82.99ms avg, 0 errors
+[2026-03-07T21:15:41.958+0000] {logging_mixin.py:188} INFO -   tx_enrichment → sink_postgres: 10815 records, 0.0ms avg, 0 errors
+[2026-03-07T21:15:41.971+0000] {python.py:201} INFO - Done. Returned value was: {'total_lineage_events': 54696, 'successful_events': 54075, 'error_events': 621, 'success_rate': 98.86, 'total_edges': 6, 'active_edges': 6, 'pipeline_coverage_percent': 100.0}
+[2026-03-07T21:15:41.994+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=insurance_claims_pipeline, task_id=lineage_report, execution_date=20260307T210000, start_date=20260307T211541, end_date=20260307T211541
+[2026-03-07T21:15:42.009+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-07T21:15:42.034+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

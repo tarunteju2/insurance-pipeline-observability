@@ -1,0 +1,18 @@
+[2026-03-07T21:30:06.995+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: insurance_claims_pipeline.stream_processing scheduled__2026-03-07T21:15:00+00:00 [queued]>
+[2026-03-07T21:30:07.045+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: insurance_claims_pipeline.stream_processing scheduled__2026-03-07T21:15:00+00:00 [queued]>
+[2026-03-07T21:30:07.047+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-03-07T21:30:07.085+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): stream_processing> on 2026-03-07 21:15:00+00:00
+[2026-03-07T21:30:07.093+0000] {standard_task_runner.py:60} INFO - Started process 1611 to run task
+[2026-03-07T21:30:07.105+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'insurance_claims_pipeline', 'stream_processing', 'scheduled__2026-03-07T21:15:00+00:00', '--job-id', '35', '--raw', '--subdir', 'DAGS_FOLDER/insurance_claims_pipeline.py', '--cfg-path', '/tmp/tmpsfgfemvr']
+[2026-03-07T21:30:07.113+0000] {standard_task_runner.py:88} INFO - Job 35: Subtask stream_processing
+[2026-03-07T21:30:07.434+0000] {task_command.py:423} INFO - Running <TaskInstance: insurance_claims_pipeline.stream_processing scheduled__2026-03-07T21:15:00+00:00 [running]> on host 9dc18f9f578f
+[2026-03-07T21:30:07.635+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='insurance-pipeline-team' AIRFLOW_CTX_DAG_ID='insurance_claims_pipeline' AIRFLOW_CTX_TASK_ID='stream_processing' AIRFLOW_CTX_EXECUTION_DATE='2026-03-07T21:15:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-07T21:15:00+00:00'
+[2026-03-07T21:30:08.466+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:30:08 [info     ] OTLP tracing exporter initialized endpoint=http://jaeger:4317
+[2026-03-07T21:30:08.468+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:30:08 [info     ] Tracing initialized            service=insurance-claims-pipeline
+[2026-03-07T21:30:09.326+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:30:09 [info     ] Stream processor started       max_messages=50 topic=insurance.claims.raw
+[2026-03-07T21:32:09.841+0000] {logging_mixin.py:188} INFO - 2026-03-07 21:32:09 [info     ] Stream processor stopped. Total processed: 0
+[2026-03-07T21:32:09.850+0000] {logging_mixin.py:188} INFO - Stream processing completed for 50 claims
+[2026-03-07T21:32:09.880+0000] {python.py:201} INFO - Done. Returned value was: 50
+[2026-03-07T21:32:10.331+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=insurance_claims_pipeline, task_id=stream_processing, execution_date=20260307T211500, start_date=20260307T213007, end_date=20260307T213210
+[2026-03-07T21:32:10.620+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-07T21:32:10.938+0000] {taskinstance.py:3280} INFO - 2 downstream tasks scheduled from follow-on schedule check

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "insurance.claims.scored.v1",
+  "title": "ScoredInsuranceClaim",
+  "description": "Schema for claims that have been fraud-scored. Version v1.",
+  "allOf": [{"$ref": "validated_claim_v1.json"}],
+  "properties": {
+    "status": {"type": "string", "enum": ["scored"]},
+    "fraud_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "risk_level":  {"type": "string", "enum": ["low","medium","high","critical"]},
+    "processing_metadata": {
+      "type": "object",
+      "required": ["fraud_scored_at", "fraud_rules_triggered", "fraud_scoring_latency_ms"],
+      "properties": {
+        "fraud_scored_at":           {"type": "string"},
+        "fraud_rules_triggered":     {"type": "array", "items": {"type": "string"}},
+        "fraud_scoring_latency_ms":  {"type": "number"}
+      }
+    }
+  }
+}

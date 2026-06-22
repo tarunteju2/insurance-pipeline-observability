@@ -21,7 +21,7 @@ scrape_configs:
 
   - job_name: 'pipeline-metrics'
     static_configs:
-      - targets: ['host.docker.internal:8001']
+      - targets: ['pipeline-processor:8001']
     metrics_path: '/metrics'
     scrape_interval: 5s
 

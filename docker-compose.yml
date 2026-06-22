@@ -1,5 +1,3 @@
-version: '3.8'
-
 x-airflow-common: &airflow-common
   build:
     context: .
@@ -25,6 +23,8 @@ x-airflow-common: &airflow-common
     AWS_SECRET_ACCESS_KEY: minioadmin123
     AWS_ENDPOINT_URL: http://minio:9000
     JAEGER_ENDPOINT: http://jaeger:4317
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
     PYTHONPATH: /opt/airflow
   volumes:
     - ./dags:/opt/airflow/dags
@@ -48,7 +48,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
-      test: "echo ruok | nc 127.0.0.1 2181 | grep -q imok || exit 1"
+      test: "echo srvr | nc 127.0.0.1 2181 | grep -q Mode || exit 1"
       interval: 10s
       timeout: 5s
       retries: 5
@@ -142,6 +142,19 @@ services:
       - "4318:4318"     # OTLP HTTP
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
+
+  # ==================== REDIS (Caching Layer) ====================
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   # ==================== PROMETHEUS ====================
   prometheus:
@@ -251,6 +264,30 @@ services:
     depends_on:
       airflow-init:
         condition: service_completed_successfully
+
+  # ==================== CONTINUOUS PIPELINE (for metrics generation) ====================
+  pipeline-processor:
+    <<: *airflow-common
+    container_name: pipeline-processor
+    command: python scripts/run_pipeline.py
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      MINIO_ENDPOINT: minio:9000
+      JAEGER_ENDPOINT: http://jaeger:4317
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      METRICS_PORT: 8001
+      PYTHONPATH: /opt/airflow
+    ports:
+      - "8001:8001"
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
