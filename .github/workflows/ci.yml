@@ -74,7 +74,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          python -m pytest tests/test_pipeline.py \
+          python -m pytest tests/ \
             -v --tb=short \
             --cov=src --cov-report=xml --cov-report=term-missing
 
@@ -120,6 +120,9 @@ jobs:
           push: false
           tags: insurance-pipeline:${{ github.sha }}
           cache-from: type=gha
+        strategy:
+          matrix:
+            python-version: ["3.9", "3.11"]
           cache-to: type=gha,mode=max
 
   # ==================== SECURITY SCAN ====================
