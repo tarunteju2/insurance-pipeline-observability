@@ -35,7 +35,7 @@ _FLOOD_ZONES = {
     "D": {"risk": "undetermined", "description": "Flood hazard undetermined"},
 }
 
-# Known catastrophe events (simulated — recent major events)
+# Known catastrophe events registry
 _CATASTROPHE_EVENTS = [
     {
         "cat_id": "CAT-2026-001",

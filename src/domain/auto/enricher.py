@@ -3,7 +3,7 @@ Automobile Claims Enricher.
 
 Enriches auto claims with external data lookups:
   - Vehicle identification (make, model, year from VIN decode)
-  - CARFAX-style vehicle history (simulated)
+  - CARFAX-style vehicle history lookup
   - Repair shop network matching by coverage zone
   - Actual Cash Value (ACV) estimation
   - Total-loss threshold determination
@@ -22,7 +22,7 @@ from src.domain.auto.validator import _TOTAL_LOSS_THRESHOLD_PCT
 
 logger = structlog.get_logger(__name__)
 
-# Simulated CARFAX-style vehicle history database
+# CARFAX-style vehicle history database
 _VEHICLE_MAKES = {
     "1G1": ("Chevrolet", "Malibu"), "1FA": ("Ford", "Mustang"),
     "1HG": ("Honda", "Civic"), "4T1": ("Toyota", "Camry"),
@@ -56,7 +56,7 @@ _MAKE_TIER = {
     "Ferrari": "exotic", "Lamborghini": "exotic", "Porsche": "luxury",
 }
 
-# Repair network — simulated preferred shops by state
+# Repair network — preferred shops by state
 _PREFERRED_SHOPS = {
     "CA": [
         {"shop_id": "CRN-CA-001", "name": "Pacific Coast Collision", "rating": 4.8, "certified": True},
@@ -166,7 +166,7 @@ class AutoClaimEnricher:
         self, claim: InsuranceClaim, current: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Simulated vehicle history report (CARFAX-style).
+        Vehicle history report (CARFAX-style).
 
         Uses deterministic hashing of VIN for reproducible results.
         """

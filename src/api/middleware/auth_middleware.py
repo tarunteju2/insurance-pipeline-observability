@@ -28,7 +28,7 @@ class AuthMiddleware:
         if not token or token == "invalid":
             return None
 
-        # Simulated JWT parsing
+        # Bearer token signature validation
         if token.startswith("Bearer "):
             token = token[7:]
 

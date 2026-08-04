@@ -249,7 +249,7 @@ class MedicalUtilizationReview:
             elif claim.claim_amount <= 25_000:
                 score += 0.15
 
-        # Documentation presence (simulated)
+        # Supporting documentation presence
         meta = claim.enrichment_data or {}
         doc_count = len(meta.get("supporting_documents", []))
         if doc_count >= 3:

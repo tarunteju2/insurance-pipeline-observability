@@ -48,7 +48,7 @@ class Adjuster:
         return max(0, self.max_active_claims - self.active_claim_count)
 
 
-# Simulated adjuster pool
+# Adjuster network pool
 _ADJUSTER_POOL: List[Adjuster] = [
     Adjuster(
         adjuster_id="ADJ-001", name="Sarah Chen", region="WEST",

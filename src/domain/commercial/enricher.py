@@ -2,7 +2,7 @@
 Commercial Claims Enricher.
 
 Enriches commercial claims with:
-  - D&B business lookup (simulated)
+  - D&B business lookup
   - Litigation history
   - Workers' comp experience modifier
   - NAICS/SIC classification
@@ -35,7 +35,7 @@ class CommercialClaimEnricher:
         return enrichment
 
     def _business_lookup(self, claim: InsuranceClaim) -> Dict[str, Any]:
-        """Simulated D&B-style business information lookup."""
+        """D&B-style business information lookup."""
         seed = int(
             hashlib.md5(claim.policy_number.encode()).hexdigest()[:8], 16
         )

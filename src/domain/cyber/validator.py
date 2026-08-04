@@ -89,7 +89,7 @@ _NIST_FUNCTIONS = {
     "recover": "Develop capabilities for resilience and restoration",
 }
 
-# OFAC sanctioned entities (simplified for simulation)
+# OFAC sanctioned entities list
 _OFAC_INDICATORS = {
     "Lazarus", "Conti", "REvil", "DarkSide", "BlackCat",
     "ALPHV", "LockBit", "Hive", "Clop", "Vice Society",

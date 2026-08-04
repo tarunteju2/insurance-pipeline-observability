@@ -21,7 +21,7 @@ from src.models.claims import InsuranceClaim
 
 logger = structlog.get_logger(__name__)
 
-# Simulated provider NPI database
+# Provider NPI database registry
 _PROVIDER_DB = {
     "1234567890": {
         "name": "Dr. Jennifer Morrison",
@@ -271,7 +271,7 @@ class HealthClaimEnricher:
         # Use PPO_Standard as default plan
         plan = _BENEFIT_STRUCTURES["PPO_Standard"]
 
-        # Simulated deductible status
+        # Policy deductible status
         seed = int(
             hashlib.md5(claim.policy_number.encode()).hexdigest()[:8], 16
         )

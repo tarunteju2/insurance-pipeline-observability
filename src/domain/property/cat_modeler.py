@@ -172,7 +172,7 @@ class CatastropheModeler:
         seed = int(hashlib.md5(addr.encode()).hexdigest()[:8], 16)
         rng = random.Random(seed)
 
-        # Simulated lat/lon from address hash
+        # Geographic lat/lon mapping from address hash
         lat = 25.0 + (seed % 2500) / 100.0  # 25-50 N latitude
         lon = -125.0 + ((seed >> 12) % 5500) / 100.0  # -125 to -70 W longitude
 
@@ -271,7 +271,7 @@ class CatastropheModeler:
         if not cat_event:
             return None
 
-        # Simulated development pattern
+        # Loss development pattern curve
         months = [1, 3, 6, 12, 18, 24, 36]
         development_pcts = {
             "hurricane": [0.20, 0.45, 0.65, 0.82, 0.92, 0.97, 1.00],

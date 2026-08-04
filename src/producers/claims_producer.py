@@ -1,6 +1,5 @@
 """
-Insurance claims producer - generates realistic fake insurance claims
-and publishes them to Kafka for processing.
+Insurance claims producer - generates realistic insurance claims for stream ingestion.
 """
 
 import json

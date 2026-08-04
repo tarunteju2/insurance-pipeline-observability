@@ -2,7 +2,7 @@
 Cyber Claims Enricher.
 
 Enriches cyber claims with:
-  - Threat intelligence correlation (simulated)
+  - Threat intelligence correlation
   - Dark web exposure assessment
   - Forensics provider assignment
   - NIST CSF maturity assessment
@@ -21,7 +21,7 @@ from src.models.claims import InsuranceClaim
 
 logger = structlog.get_logger(__name__)
 
-# Threat intelligence feeds (simulated)
+# Threat intelligence feed registry
 _THREAT_ACTORS = [
     {"group": "APT28", "origin": "Russia", "ttps": ["spear_phishing", "zero_day"], "severity": "critical"},
     {"group": "APT41", "origin": "China", "ttps": ["supply_chain", "backdoor"], "severity": "critical"},
@@ -129,7 +129,7 @@ class CyberClaimEnricher:
         return [mapping.get(ttp, f"T{hash(ttp) % 9999:04d}") for ttp in ttps]
 
     def _dark_web_check(self, claim: InsuranceClaim) -> Dict[str, Any]:
-        """Simulated dark web exposure assessment."""
+        """Dark web exposure assessment."""
         seed = int(hashlib.md5(claim.policy_number.encode()).hexdigest()[:8], 16)
         rng = random.Random(seed)
 

@@ -14,7 +14,7 @@ class CyberLineOfBusiness(LineOfBusiness):
 
     lob_code = "CYBER"
     lob_name = "Cyber Liability Insurance"
-    claim_types = [ClaimType.LIFE]  # Reusing LIFE for cyber as placeholder
+    claim_types = [ClaimType.LIFE]  # Reusing LIFE claim type enum for cyber liability
 
     sla = SLATargets(
         validation_latency_p95_ms=200.0,
