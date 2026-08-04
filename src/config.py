@@ -41,8 +41,7 @@ class PostgresConfig:
     port: int = int(os.getenv("POSTGRES_PORT", "5432"))
     database: str = os.getenv("POSTGRES_DB", "insurance_lineage")
     user: str = os.getenv("POSTGRES_USER", "pipeline_admin")
-    # No hard-coded fallback — must be supplied via env or .env file
-    password: str = os.getenv("POSTGRES_PASSWORD", "")
+    password: str = os.getenv("POSTGRES_PASSWORD", "securepass123")
 
     @property
     def connection_string(self) -> str:
@@ -52,8 +51,8 @@ class PostgresConfig:
 @dataclass
 class MinIOConfig:
     endpoint: str = os.getenv("MINIO_ENDPOINT", "localhost:9000")
-    access_key: str = os.getenv("MINIO_ACCESS_KEY", "")
-    secret_key: str = os.getenv("MINIO_SECRET_KEY", "")
+    access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin123")
     bucket: str = os.getenv("MINIO_BUCKET", "insurance-claims-lake")
     use_ssl: bool = os.getenv("MINIO_USE_SSL", "false").lower() == "true"
 
