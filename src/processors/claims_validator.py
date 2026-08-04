@@ -14,7 +14,7 @@ This prevents wasting fraud-detection and enrichment compute on garbage data.
 
 import re
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Tuple, List
 
 import structlog
@@ -338,3 +338,54 @@ class ClaimsValidator:
                     latency_ms=round(latency_ms, 2))
 
         return is_valid, claim
+
+    def evaluate_data_expectations(self, claims: List[InsuranceClaim]) -> dict:
+        """
+        Evaluates declarative Data Quality Expectations over a batch of claims
+        and returns an OpenLineage-style Data Quality Scorecard.
+        """
+        if not claims:
+            return {
+                "total_claims": 0,
+                "overall_quality_score": 100.0,
+                "expectations": []
+            }
+
+        total_claims = len(claims)
+
+        # 1. Expectation: claim_amount > 0
+        positive_amounts = sum(1 for c in claims if c.claim_amount is not None and c.claim_amount > 0)
+        exp_amount = {
+            "name": "expect_claim_amount_to_be_positive",
+            "passed": positive_amounts == total_claims,
+            "pass_rate": round((positive_amounts / total_claims) * 100, 2),
+            "observed_value": f"{positive_amounts}/{total_claims} positive",
+        }
+
+        # 2. Expectation: policy_number matches format
+        valid_policies = sum(1 for c in claims if c.policy_number and self.POLICY_PATTERN.match(c.policy_number))
+        exp_policy = {
+            "name": "expect_policy_number_format_valid",
+            "passed": valid_policies == total_claims,
+            "pass_rate": round((valid_policies / total_claims) * 100, 2),
+            "observed_value": f"{valid_policies}/{total_claims} valid format",
+        }
+
+        # 3. Expectation: non-null claimant_name
+        non_null_names = sum(1 for c in claims if c.claimant_name and c.claimant_name.strip())
+        exp_names = {
+            "name": "expect_claimant_name_not_null",
+            "passed": non_null_names == total_claims,
+            "pass_rate": round((non_null_names / total_claims) * 100, 2),
+            "observed_value": f"{non_null_names}/{total_claims} non-null",
+        }
+
+        expectations = [exp_amount, exp_policy, exp_names]
+        avg_score = round(sum(e["pass_rate"] for e in expectations) / len(expectations), 2)
+
+        return {
+            "total_claims": total_claims,
+            "overall_quality_score": avg_score,
+            "expectations": expectations,
+            "evaluated_at": datetime.now(timezone.utc).isoformat()
+        }

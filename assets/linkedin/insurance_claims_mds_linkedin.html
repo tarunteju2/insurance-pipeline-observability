@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Insurance Claims — MDS Architecture · LinkedIn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #050b14;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 40px 24px;
+    }
+
+    /* ─── CARD ──────────────────────────────────────────── */
+    .card {
+      width: 1340px;
+      background: #0a111d;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(99,102,241,0.12),
+        0 0 80px rgba(99,102,241,0.06),
+        0 40px 120px rgba(0,0,0,0.7);
+    }
+
+    /* top gradient accent bar */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #6366f1 0%, #3b82f6 30%, #10b981 60%, #f59e0b 85%, #ef4444 100%);
+      z-index: 10;
+    }
+
+    /* subtle grid background */
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────── */
+    .header {
+      padding: 26px 36px 22px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-size: 24px;
+      box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+    }
+
+    .header-text { flex: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #818cf8;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.22);
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 8px;
+    }
+
+    .live-dot {
+      width: 6px; height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity:1; } 50% { opacity:0.3; }
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 900;
+      color: #f1f5f9;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+
+    .header h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #818cf8, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: #475569;
+      margin-top: 5px;
+      font-weight: 400;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 10px;
+    }
+
+    .stat-box {
+      text-align: center;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      min-width: 64px;
+    }
+
+    .stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: #e2e8f0;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-key {
+      font-size: 9px;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 3px;
+      font-weight: 600;
+    }
+
+    /* ─── PIPELINE FLOW ───────────────────────────────────── */
+    .section {
+      padding: 18px 28px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sec-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #1e3a5f;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sec-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .flow {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      height: 220px;
+    }
+
+    /* stage card */
+    .st {
+      flex: 1;
+      border-radius: 12px;
+      padding: 14px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .st::before {
+      content: attr(data-n);
+      position: absolute;
+      bottom: 8px; right: 10px;
+      font-size: 42px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .st-num {
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      color: #94a3b8;
+    }
+
+    .st-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    .chips {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: auto;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 500;
+      color: #cbd5e1;
+      background: rgba(0,0,0,0.25);
+      position: relative;
+    }
+
+    .chip img, .chip .ic {
+      width: 13px; height: 13px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .chip .ic {
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+
+    .new-tag {
+      font-size: 7px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* Arrow between stages */
+    .arr {
+      width: 28px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .arr::after {
+      content: '›';
+      font-size: 20px;
+      color: #1e3a5f;
+      font-weight: 300;
+    }
+
+    /* ── Stage colour themes ── */
+    .s1 { background: rgba(249,115,22,0.07); border: 1px solid rgba(249,115,22,0.18); }
+    .s1 .st-title { color: #fb923c; }
+    .s1 .new-tag { background: rgba(249,115,22,0.2); color: #fb923c; }
+
+    .s2 { background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.18); }
+    .s2 .st-title { color: #60a5fa; }
+    .s2 .new-tag { background: rgba(59,130,246,0.2); color: #60a5fa; }
+
+    .s3 { background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.18); }
+    .s3 .st-title { color: #a78bfa; }
+    .s3 .new-tag { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+    .s4 { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.18); }
+    .s4 .st-title { color: #34d399; }
+    .s4 .new-tag { background: rgba(16,185,129,0.2); color: #34d399; }
+
+    .s5 { background: rgba(6,182,212,0.07); border: 1px solid rgba(6,182,212,0.18); }
+    .s5 .st-title { color: #22d3ee; }
+    .s5 .new-tag { background: rgba(6,182,212,0.2); color: #22d3ee; }
+
+    /* ─── HORIZONTAL BANDS ─────────────────────────────────── */
+    .bands {
+      padding: 14px 28px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .band {
+      border-radius: 10px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .band-hd {
+      flex-shrink: 0;
+      min-width: 120px;
+    }
+
+    .band-name {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      line-height: 1.2;
+    }
+
+    .band-desc {
+      font-size: 9px;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .band-sep {
+      width: 1px;
+      align-self: stretch;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .b-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-content: flex-start;
+    }
+
+    .bc {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 500;
+    }
+
+    .bc img, .bc .ic {
+      width: 13px; height: 13px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .bc .ic { font-size: 12px; display:grid;place-items:center; }
+
+    /* band themes */
+    .b-orch {
+      background: rgba(139,92,246,0.05);
+      border: 1px solid rgba(139,92,246,0.14);
+    }
+    .b-orch .band-name { color: #a78bfa; }
+    .b-orch .bc { background: rgba(139,92,246,0.1); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.18); }
+
+    .b-obs {
+      background: rgba(236,72,153,0.05);
+      border: 1px solid rgba(236,72,153,0.14);
+    }
+    .b-obs .band-name { color: #f472b6; }
+    .b-obs .bc { background: rgba(236,72,153,0.09); color: #fbcfe8; border: 1px solid rgba(236,72,153,0.18); }
+
+    .b-gov {
+      background: rgba(234,179,8,0.05);
+      border: 1px solid rgba(234,179,8,0.14);
+    }
+    .b-gov .band-name { color: #fbbf24; }
+    .b-gov .bc { background: rgba(234,179,8,0.09); color: #fde68a; border: 1px solid rgba(234,179,8,0.18); }
+
+    .b-infra {
+      background: rgba(100,116,139,0.05);
+      border: 1px solid rgba(100,116,139,0.14);
+    }
+    .b-infra .band-name { color: #94a3b8; }
+    .b-infra .bc { background: rgba(100,116,139,0.1); color: #cbd5e1; border: 1px solid rgba(100,116,139,0.18); }
+
+    /* ─── FOOTER ──────────────────────────────────────────── */
+    .footer {
+      padding: 13px 36px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-l {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10.5px;
+      color: #334155;
+    }
+
+    .footer-l span { font-weight: 500; }
+    .sep { color: #1e293b; }
+
+    .hashtags {
+      font-size: 10px;
+      color: #1e3a5f;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Inline SVG icons (for tools not in simpleicons) ─── */
+    .iceberg-svg { color: #34d399; }
+    .registry-svg { color: #60a5fa; }
+
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- ░░░ HEADER ░░░ -->
+  <div class="header">
+    <div class="header-icon">🏥</div>
+    <div class="header-text">
+      <div class="eyebrow">
+        <span class="live-dot"></span>
+        Real-time Streaming Pipeline · Phase 2 Complete
+      </div>
+      <h1>Insurance Claims <em>MDS Architecture</em></h1>
+      <div class="header-sub">End-to-end data engineering — from raw events to audited, governed analytics</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-box">
+        <div class="stat-val">70</div>
+        <div class="stat-key">Tests ✓</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">15+</div>
+        <div class="stat-key">Services</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">5</div>
+        <div class="stat-key">Stages</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" style="color:#818cf8">P2</div>
+        <div class="stat-key">Phase</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░░ PIPELINE FLOW ░░░ -->
+  <div class="section">
+    <div class="sec-label">Pipeline Flow</div>
+    <div class="flow">
+
+      <!-- 01 · DATA SOURCES -->
+      <div class="st s1" data-n="1">
+        <div class="st-num">01 · Source</div>
+        <div class="st-title">Data<br>Sources</div>
+        <div class="chips">
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/python/fb923c" alt="Python"/>
+            Python 3.9
+          </div>
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/pydantic/fb923c" alt="Pydantic"/>
+            Pydantic v2
+          </div>
+          <div class="chip">
+            <span class="ic">📋</span>
+            Claims Generator
+          </div>
+        </div>
+      </div>
+
+      <div class="arr"></div>
+
+      <!-- 02 · INGEST -->
+      <div class="st s2" data-n="2">
+        <div class="st-num">02 · Ingest</div>
+        <div class="st-title">Event<br>Streaming</div>
+        <div class="chips">
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/apachekafka/60a5fa" alt="Kafka"/>
+            Apache Kafka
+          </div>
+          <div class="chip">
+            <!-- Confluent Schema Registry — styled badge -->
+            <svg width="13" height="13" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#60a5fa" stroke-width="2"/><path d="M8 14h12M14 8v12" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/></svg>
+            Schema Registry
+            <span class="new-tag">NEW</span>
+          </div>
+          <div class="chip">
+            <span class="ic">🔱</span>
+            Zookeeper
+          </div>
+        </div>
+      </div>
+
+      <div class="arr"></div>
+
+      <!-- 03 · PROCESS -->
+      <div class="st s3" data-n="3">
+        <div class="st-num">03 · Process</div>
+        <div class="st-title">Stream<br>Processing</div>
+        <div class="chips">
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/fastapi/a78bfa" alt="FastAPI"/>
+            FastAPI
+          </div>
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/redis/a78bfa" alt="Redis"/>
+            Redis Cache
+          </div>
+          <div class="chip">
+            <span class="ic">⚡</span>
+            Circuit Breaker
+          </div>
+        </div>
+      </div>
+
+      <div class="arr"></div>
+
+      <!-- 04 · LAKEHOUSE -->
+      <div class="st s4" data-n="4">
+        <div class="st-num">04 · Store</div>
+        <div class="st-title">Lakehouse<br>Storage</div>
+        <div class="chips">
+          <div class="chip">
+            <!-- MinIO logo inline SVG -->
+            <svg width="13" height="13" viewBox="0 0 32 32" fill="none"><path d="M16 4L28 20H4L16 4Z" fill="#34d399"/></svg>
+            MinIO / S3
+          </div>
+          <div class="chip">
+            <!-- Apache Iceberg — custom badge -->
+            <svg width="13" height="13" viewBox="0 0 32 32" fill="none"><polygon points="16,2 30,28 2,28" fill="none" stroke="#34d399" stroke-width="2"/><line x1="16" y1="12" x2="16" y2="24" stroke="#34d399" stroke-width="2"/></svg>
+            Apache Iceberg
+            <span class="new-tag">NEW</span>
+          </div>
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/postgresql/34d399" alt="PostgreSQL"/>
+            PostgreSQL
+          </div>
+        </div>
+      </div>
+
+      <div class="arr"></div>
+
+      <!-- 05 · SERVE -->
+      <div class="st s5" data-n="5">
+        <div class="st-num">05 · Serve</div>
+        <div class="st-title">Analytics<br>Serving</div>
+        <div class="chips">
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/grafana/22d3ee" alt="Grafana"/>
+            Grafana
+          </div>
+          <div class="chip">
+            <img src="https://cdn.simpleicons.org/prometheus/22d3ee" alt="Prometheus"/>
+            Prometheus
+          </div>
+          <div class="chip">
+            <span class="ic">📊</span>
+            DQ Scorecards
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /flow -->
+  </div><!-- /section -->
+
+  <!-- ░░░ HORIZONTAL BANDS ░░░ -->
+  <div class="bands">
+
+    <!-- Orchestration -->
+    <div class="band b-orch">
+      <div class="band-hd">
+        <div class="band-name">🎛 Orchestration</div>
+        <div class="band-desc">Scheduled DAG execution</div>
+      </div>
+      <div class="band-sep"></div>
+      <div class="b-chips">
+        <div class="bc"><img src="https://cdn.simpleicons.org/apacheairflow/a78bfa" alt="Airflow"/>Apache Airflow 2.8</div>
+        <div class="bc"><span class="ic">⏱</span>15-min scheduled DAGs</div>
+        <div class="bc"><span class="ic">🔄</span>Retry w/ backoff</div>
+        <div class="bc"><span class="ic">📬</span>XCom task passing</div>
+        <div class="bc"><span class="ic">🏥</span>Health gate checks</div>
+      </div>
+    </div>
+
+    <!-- Observability -->
+    <div class="band b-obs">
+      <div class="band-hd">
+        <div class="band-name">🔭 Observability</div>
+        <div class="band-desc">Full-stack telemetry</div>
+      </div>
+      <div class="band-sep"></div>
+      <div class="b-chips">
+        <div class="bc"><img src="https://cdn.simpleicons.org/prometheus/f472b6" alt="Prometheus"/>Prometheus</div>
+        <div class="bc"><img src="https://cdn.simpleicons.org/grafana/f472b6" alt="Grafana"/>Grafana</div>
+        <div class="bc"><img src="https://cdn.simpleicons.org/opentelemetry/f472b6" alt="OTel"/>OTel Collector <span style="font-size:7px;background:rgba(236,72,153,0.25);color:#f472b6;padding:1px 4px;border-radius:3px;margin-left:3px;font-weight:800;">NEW</span></div>
+        <div class="bc"><span class="ic">🔭</span>Jaeger Tracing</div>
+        <div class="bc"><span class="ic">📝</span>Structlog JSON</div>
+      </div>
+    </div>
+
+    <!-- Governance -->
+    <div class="band b-gov">
+      <div class="band-hd">
+        <div class="band-name">🔐 Governance</div>
+        <div class="band-desc">Data quality & compliance</div>
+      </div>
+      <div class="band-sep"></div>
+      <div class="b-chips">
+        <div class="bc"><span class="ic">🔒</span>PII Masking</div>
+        <div class="bc"><span class="ic">📐</span>Schema Validation</div>
+        <div class="bc"><span class="ic">🗺</span>Data Lineage</div>
+        <div class="bc"><span class="ic">✅</span>DQ Scoring</div>
+        <div class="bc"><span class="ic">🔁</span>Idempotency Keys</div>
+        <div class="bc"><span class="ic">📋</span>Audit Trail</div>
+      </div>
+    </div>
+
+    <!-- Infrastructure & QA -->
+    <div class="band b-infra">
+      <div class="band-hd">
+        <div class="band-name">🏗 Infra &amp; QA</div>
+        <div class="band-desc">Testing &amp; deployment</div>
+      </div>
+      <div class="band-sep"></div>
+      <div class="b-chips">
+        <div class="bc"><img src="https://cdn.simpleicons.org/docker/94a3b8" alt="Docker"/>Docker Compose</div>
+        <div class="bc"><img src="https://cdn.simpleicons.org/pytest/94a3b8" alt="pytest"/>pytest · 70 tests</div>
+        <div class="bc"><img src="https://cdn.simpleicons.org/python/94a3b8" alt="Python"/>Hypothesis <span style="font-size:7px;background:rgba(100,116,139,0.3);color:#94a3b8;padding:1px 4px;border-radius:3px;margin-left:3px;font-weight:800;">NEW</span></div>
+        <div class="bc"><span class="ic">🚨</span>Alert Rules</div>
+        <div class="bc"><span class="ic">📦</span>MinIO Backup</div>
+      </div>
+    </div>
+
+  </div><!-- /bands -->
+
+  <!-- ░░░ FOOTER ░░░ -->
+  <div class="footer">
+    <div class="footer-l">
+      <span>🏥 Insurance Claims Real-time Pipeline</span>
+      <span class="sep">·</span>
+      <span>Phase 2 Complete — 70/70 tests passing</span>
+      <span class="sep">·</span>
+      <span>Python · Kafka · Iceberg · Airflow · Prometheus · Docker</span>
+    </div>
+    <div class="hashtags">#DataEngineering #MDS #Kafka #Iceberg #Airflow #OpenTelemetry #Python</div>
+  </div>
+
+</div><!-- /card -->
+</body>
+</html>

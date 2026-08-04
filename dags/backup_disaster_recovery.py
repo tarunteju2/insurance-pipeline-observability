@@ -5,17 +5,12 @@ Runs daily at 2 AM to backup the PostgreSQL database to MinIO.
 Also cleans up old backups after 30 days.
 """
 
+import logging
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.bash import BashOperator
-from airflow.utils.dates import days_ago
-import subprocess
-import boto3
-from botocore.client import Config as BotoConfig
-import structlog
 
-logger = structlog.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 default_args = {
     'owner': 'insurance-pipeline-team',
@@ -35,7 +30,12 @@ def backup_postgresql(**context):
     Creates a gzipped SQL dump of the insurance_lineage database
     and stores it in MinIO's backups/postgres/ directory with a timestamp.
     """
+    import gzip
     import os
+    import subprocess
+
+    import boto3
+    from botocore.client import Config as BotoConfig
     
     # Environment variables
     postgres_host = os.getenv('POSTGRES_HOST', 'postgres')
@@ -55,9 +55,6 @@ def backup_postgresql(**context):
     try:
         # Create backup
         logger.info(f"Starting PostgreSQL backup for {postgres_db}")
-        import gzip
-        import subprocess
-        
         with gzip.open(backup_file, 'wb') as gz:
             dump_proc = subprocess.Popen([
                 'pg_dump',
@@ -112,8 +109,8 @@ def cleanup_old_backups(**context):
     """
     import os
     import boto3
-    from botocore.client import Config as BotoConfig
     from datetime import datetime, timedelta
+    from botocore.client import Config as BotoConfig
     
     minio_endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
     minio_access_key = os.getenv('MINIO_ACCESS_KEY', 'minioadmin')
@@ -166,9 +163,9 @@ def verify_backup_integrity(**context):
     Confirms the backup was uploaded successfully to MinIO
     and logs its size for monitoring.
     """
+    import os
     import boto3
     from botocore.client import Config as BotoConfig
-    import os
     
     try:
         backup_file = context['ti'].xcom_pull(key='backup_file')
@@ -207,7 +204,7 @@ with DAG(
     default_args=default_args,
     description='Automated backup and disaster recovery for insurance pipeline',
     schedule_interval='0 2 * * *',  # Daily at 2 AM UTC
-    start_date=days_ago(1),
+    start_date=datetime(2024, 1, 1),
     catchup=False,
     max_active_runs=1,
     tags=['backup', 'disaster-recovery', 'insurance', 'pipeline'],

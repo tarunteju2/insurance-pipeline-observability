@@ -248,5 +248,6 @@ WTForms==3.2.1
 yarl==1.22.0
 zipp==3.23.0
 zope.event==6.1
+duckdb>=1.0.0
 zope.interface==8.2
 zstandard==0.25.0

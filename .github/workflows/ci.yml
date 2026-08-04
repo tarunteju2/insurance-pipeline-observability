@@ -69,7 +69,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f "requirements-py311.txt" ]; then
+            pip install -r requirements-py311.txt
+          else
+            pip install -r requirements.txt
+          fi
           pip install pytest-cov
 
       - name: Run tests with coverage
@@ -120,9 +124,6 @@ jobs:
           push: false
           tags: insurance-pipeline:${{ github.sha }}
           cache-from: type=gha
-        strategy:
-          matrix:
-            python-version: ["3.9", "3.11"]
           cache-to: type=gha,mode=max
 
   # ==================== SECURITY SCAN ====================

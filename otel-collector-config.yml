@@ -1,0 +1,58 @@
+# OpenTelemetry Collector configuration for the insurance claims pipeline.
+#
+# Role in the architecture
+# ------------------------
+# All application services send OTLP spans to THIS collector (not to Jaeger
+# directly). The collector batches, applies memory limits, then forwards to
+# Jaeger. This decouples the application from the tracing backend — swapping
+# Jaeger for Tempo, Datadog, or any OTLP-compatible backend only requires a
+# change here, not in application code.
+#
+# Receivers  : OTLP gRPC (:4317) and HTTP (:4318)
+# Processors : memory_limiter → batch
+# Exporters  : Jaeger via OTLP gRPC (internal network)
+#              Prometheus metrics for the collector itself (:8889)
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  # Prevent OOM in high-traffic bursts — hard limit 256 MiB.
+  memory_limiter:
+    check_interval: 2s
+    limit_mib: 256
+    spike_limit_mib: 64
+
+  # Batch spans before forwarding to reduce Jaeger round-trips.
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+exporters:
+  # Forward all traces to Jaeger via OTLP gRPC (container-internal network).
+  otlp/jaeger:
+    endpoint: "jaeger:4317"
+    tls:
+      insecure: true
+
+  # Expose collector self-metrics in Prometheus format for Grafana scraping.
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: otelcol
+
+service:
+  pipelines:
+    traces:
+      receivers:  [otlp]
+      processors: [memory_limiter, batch]
+      exporters:  [otlp/jaeger]
+
+  telemetry:
+    logs:
+      level: warn
