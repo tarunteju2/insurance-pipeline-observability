@@ -18,6 +18,12 @@ env/
 # Runtime logs and artifacts
 logs/
 *.log
+*.scratch
 
-# OS/editor noise
+# OS/editor & IDE noise
 .DS_Store
+.vscode/
+.idea/
+.gemini/
+.claude/
+.cursor/
